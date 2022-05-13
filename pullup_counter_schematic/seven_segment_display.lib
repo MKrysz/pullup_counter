@@ -1,0 +1,26 @@
+EESchema-LIBRARY Version 2.4
+#encoding utf-8
+#
+# dual_sev_seg_display
+#
+DEF dual_sev_seg_display U 0 40 Y Y 1 F N
+F0 "U" 50 700 50 H V C CNN
+F1 "dual_sev_seg_display" 50 700 50 H V C CNN
+F2 "" 50 700 50 H I C CNN
+F3 "" 50 700 50 H I C CNN
+DRAW
+S -200 650 300 -250 0 1 0 f
+X c 1 -300 350 100 R 50 50 1 1 I
+X a 10 -300 550 100 R 50 50 1 1 I
+X dp 2 -300 -150 100 R 50 50 1 1 I
+X e 3 -300 150 100 R 50 50 1 1 I
+X d 4 -300 250 100 R 50 50 1 1 I
+X g 5 -300 -50 100 R 50 50 1 1 I
+X f 6 -300 50 100 R 50 50 1 1 I
+X disp1 7 400 -50 100 L 50 50 1 1 I
+X disp2 8 400 -150 100 L 50 50 1 1 I
+X b 9 -300 450 100 R 50 50 1 1 I
+ENDDRAW
+ENDDEF
+#
+#End Library

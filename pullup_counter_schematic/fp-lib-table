@@ -1,0 +1,3 @@
+(fp_lib_table
+  (lib (name pullup_counter_schematic)(type KiCad)(uri ${KIPRJMOD}/pullup_counter_schematic.pretty)(options "")(descr ""))
+)
