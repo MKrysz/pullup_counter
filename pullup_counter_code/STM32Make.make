@@ -38,7 +38,6 @@ BUILD_DIR = build
 C_SOURCES =  \
 Core/Src/adc.c \
 Core/Src/display.c \
-Core/Src/eeprom.c \
 Core/Src/entry.c \
 Core/Src/gpio.c \
 Core/Src/i2c.c \
@@ -49,6 +48,7 @@ Core/Src/stm32f0xx_hal_msp.c \
 Core/Src/stm32f0xx_it.c \
 Core/Src/system_stm32f0xx.c \
 Core/Src/tim.c \
+Core/Src/usart.c \
 Drivers/STM32F0xx_HAL_Driver/Src/stm32f0xx_hal.c \
 Drivers/STM32F0xx_HAL_Driver/Src/stm32f0xx_hal_adc.c \
 Drivers/STM32F0xx_HAL_Driver/Src/stm32f0xx_hal_adc_ex.c \
@@ -70,7 +70,8 @@ Drivers/STM32F0xx_HAL_Driver/Src/stm32f0xx_hal_spi.c \
 Drivers/STM32F0xx_HAL_Driver/Src/stm32f0xx_hal_spi_ex.c \
 Drivers/STM32F0xx_HAL_Driver/Src/stm32f0xx_hal_tim.c \
 Drivers/STM32F0xx_HAL_Driver/Src/stm32f0xx_hal_tim_ex.c \
-Drivers/ee24/ee24.c \
+Drivers/STM32F0xx_HAL_Driver/Src/stm32f0xx_hal_uart.c \
+Drivers/STM32F0xx_HAL_Driver/Src/stm32f0xx_hal_uart_ex.c \
 Drivers/w25qxx/w25qxx.c
 
 
@@ -148,7 +149,6 @@ C_INCLUDES =  \
 -IDrivers/CMSIS/Include \
 -IDrivers/STM32F0xx_HAL_Driver/Inc \
 -IDrivers/STM32F0xx_HAL_Driver/Inc/Legacy \
--IDrivers/ee24 \
 -IDrivers/w25qxx
 
 

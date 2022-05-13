@@ -73,7 +73,6 @@ includeDirectories:
   - Core/Src/**
   - Core/Lib/**
   - Drivers/w25qxx/**
-  - Drivers/ee24/**
 
 
 # Files that should be included in the compilation.
@@ -86,7 +85,6 @@ sourceFiles:
   - Core/Src/**
   - Core/Lib/**
   - Drivers/w25qxx/**
-  - Drivers/ee24/**
 
 
 # When no makefile is present it will show a warning pop-up.

@@ -24,6 +24,7 @@
 #include "rtc.h"
 #include "spi.h"
 #include "tim.h"
+#include "usart.h"
 #include "gpio.h"
 
 /* Private includes ----------------------------------------------------------*/
@@ -32,10 +33,7 @@
 #include <stdbool.h>
 #include "display.h"
 #include "entry.h"
-#if DEBUG_MAIN
 #include <stdio.h>
-#endif
-#include "eeprom.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -108,6 +106,7 @@ int main(void)
   MX_TIM16_Init();
   MX_TIM17_Init();
   MX_ADC_Init();
+  MX_USART1_UART_Init();
   /* USER CODE BEGIN 2 */
   uint32_t timeStart, timeDelta;
   timeStart = HAL_GetTick();
@@ -122,9 +121,11 @@ int main(void)
   /* USER CODE BEGIN WHILE */
   const uint32_t pullupTimeMin = 250;
   const uint32_t pullupTimeMax = 1000;
+  printf("start\n");
   while (1)
   {
     //TODO: add battery check
+    //TODO: add usb interface
 
     if (distanceFlag)
     {
@@ -195,7 +196,9 @@ void SystemClock_Config(void)
   {
     Error_Handler();
   }
-  PeriphClkInit.PeriphClockSelection = RCC_PERIPHCLK_I2C1|RCC_PERIPHCLK_RTC;
+  PeriphClkInit.PeriphClockSelection = RCC_PERIPHCLK_USART1|RCC_PERIPHCLK_I2C1
+                              |RCC_PERIPHCLK_RTC;
+  PeriphClkInit.Usart1ClockSelection = RCC_USART1CLKSOURCE_PCLK1;
   PeriphClkInit.I2c1ClockSelection = RCC_I2C1CLKSOURCE_HSI;
   PeriphClkInit.RTCClockSelection = RCC_RTCCLKSOURCE_LSI;
   if (HAL_RCCEx_PeriphCLKConfig(&PeriphClkInit) != HAL_OK)
@@ -214,7 +217,7 @@ void programmingRoutine()
 {
   // rtc_setTime();
   W25qxx_EraseChip();
-  eeprom_eraseVariables();
+  // eeprom_eraseVariables();
 }
 
 
@@ -254,21 +257,6 @@ void wakeUpRoutine()
  */
 void updateCounter(uint8_t date, uint8_t month)
 {
-  uint8_t tempCounter;
-
-  //set tempCounter to either value saved in eeprom or zero
-  if(eeprom_compare(counterDate, &date) && eeprom_compare(counterMonth, &month)){
-    eeprom_readVariable(counter, &tempCounter);
-  }
-  else{
-    tempCounter = 0;
-    eeprom_writeVariable(counterDate, &date);
-    eeprom_writeVariable(counterMonth, &month);
-  }
-  
-  tempCounter++;
-  Display_setInt(tempCounter);
-  eeprom_writeVariable(counter, &tempCounter);
 }
 
 /**
@@ -283,7 +271,6 @@ void myErrorHandler()
   while(1);
 }
 
-#if DEBUG_MAIN
 int _write(int fd, char* ptr, int len) {
   HAL_StatusTypeDef hstatus;
 
@@ -292,7 +279,6 @@ int _write(int fd, char* ptr, int len) {
     return len;
   return -1;
 }
-#endif // DEBUG_MAIN
 
 void batteryCheck()
 {

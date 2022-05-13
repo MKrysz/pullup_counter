@@ -2,24 +2,19 @@
 #include "entry.h"
 #include "rtc.h"
 #include "w25qxx.h"
-#include "eeprom.h"
 
 #if DEBUG_ENTRY
 #include <stdio.h>
 #endif
 
+
 /**
- * @brief Create a Entry object with unique ID and created timestamp
+ * @brief Set timestamp to an entry
  * 
  * @param entry
  */
-void entry_create(entry_t* entry)
+void entry_setTimestamp(entry_t* entry)
 {
-    uint16_t tempNextId;
-    eeprom_readVariable(nextId, (uint8_t*)(&tempNextId));
-    entry->id_ = tempNextId;
-    tempNextId++;
-    eeprom_writeVariable(nextId, (uint8_t*)(&tempNextId));
     RTC_DateTypeDef date = rtc_getDate();
     RTC_TimeTypeDef time = rtc_getTime();
 
@@ -31,33 +26,6 @@ void entry_create(entry_t* entry)
     entry->month_ = date.Month;
 }
 
-/**
- * @brief Saves entry to an external FLASH memory
- * 
- * @param entry 
- */
-void entry_save(entry_t* entry)
-{
-    uint32_t tempPageAddress, tempOffsetInBytes;
-
-    eeprom_readVariable(pageAddress, (uint8_t*)(&tempPageAddress));
-    eeprom_readVariable(offsetInBytes, (uint8_t*)(&tempOffsetInBytes));
-
-    W25qxx_WritePage((uint8_t*)entry, tempPageAddress, tempOffsetInBytes, sizeof(entry_t));
-
-    eeprom_writeVariable(lastPageAddress, (uint8_t*)(&tempPageAddress));
-    eeprom_writeVariable(lastOffsetInBytes, (uint8_t*)(&tempOffsetInBytes));
-
-    tempOffsetInBytes += sizeof(entry_t);
-    if(tempOffsetInBytes == w25qxx.PageSize){
-        tempOffsetInBytes = 0;
-        tempPageAddress++;
-    }
-
-    eeprom_writeVariable(pageAddress, (uint8_t*)(&tempPageAddress));
-    eeprom_writeVariable(offsetInBytes, (uint8_t*)(&tempOffsetInBytes));
-
-}
 
 /**
  * @brief Read last saved entry and compares it
@@ -69,8 +37,8 @@ bool entry_verifyLast(entry_t* entry)
 {
     uint32_t tempLastPageAddress, tempLastOffsetInBytes;
 
-    eeprom_readVariable(lastPageAddress, (uint8_t*)(&tempLastPageAddress));
-    eeprom_readVariable(lastOffsetInBytes, (uint8_t*)(&tempLastOffsetInBytes));
+    // eeprom_readVariable(lastPageAddress, (uint8_t*)(&tempLastPageAddress));
+    // eeprom_readVariable(lastOffsetInBytes, (uint8_t*)(&tempLastOffsetInBytes));
 
     entry_t lastEntry;
     entry_read(&lastEntry, tempLastPageAddress, tempLastOffsetInBytes);
@@ -98,7 +66,7 @@ bool entry_isEqual(entry_t* left, entry_t* right)
         && (left->month_ == right->month_)
         && (left->date_ == right->date_)
         && (left->weekday_ == right->weekday_)
-        && (left->placeHolder_ == right->placeHolder_);
+        && (left->counter == right->counter);
 }
 
 /**
@@ -127,3 +95,43 @@ void entry_print(entry_t* entry)
     printf("placeHolder = %u\n\n\n", entry->placeHolder_);
 }
 #endif
+
+
+void entry_Write(entry_t* entry, uint32_t ddr)
+{
+    //convert from entries to bytes
+    uint32_t ddr_inBytes = ddr * sizeof(entry_t);
+
+    //calculate page and offset
+    uint32_t page = ddr_inBytes/w25qxx.PageSize;
+    uint32_t offset = ddr_inBytes%w25qxx.PageSize;
+
+    W25qxx_WritePage((uint8_t*)entry, page, offset, sizeof(entry_t));
+}
+
+void entry_Read(entry_t* entry, uint32_t ddr)
+{
+    //convert from entries to bytes
+    uint32_t ddr_inBytes = ddr * sizeof(entry_t);
+
+    W25qxx_ReadBytes((uint8_t *)entry, ddr_inBytes, sizeof(entry_t));
+}
+
+bool entry_IsEmpty(entry_t* entry)
+{
+    const entry_t blankEntry = {0xffffffffffffffff};
+    return entry_isEqual(entry, &blankEntry);
+}
+
+uint32_t entry_GetLastEntry(entry_t entry)
+{
+    //binary search
+
+    uint32_t ddr_right = w25qxx.PageSize * w25qxx.PageCount / sizeof(entry_t) - 1;
+    uint32_t ddr_left = 0;
+
+    while(ddr_left <= ddr_right){
+        
+    }
+
+}
