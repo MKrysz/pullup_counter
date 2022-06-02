@@ -32,3 +32,6 @@
 # Exported BOM files
 *_schematic/*.xml
 *_schematic/*.csv
+
+**/*_code/build
+**/*_code/.vscode
