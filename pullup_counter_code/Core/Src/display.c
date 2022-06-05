@@ -231,7 +231,7 @@ void Display_turnOnTimed(uint32_t ONtime)
  */
 void Display_timerCallback()
 {
-    const uint8_t disMax = 1;
+    const uint8_t disMax = NR_OF_DISPLAY-1;
 
     static uint8_t dis = 0;
     

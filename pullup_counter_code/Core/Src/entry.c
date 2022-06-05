@@ -2,11 +2,7 @@
 #include "entry.h"
 #include "rtc.h"
 #include "w25qxx.h"
-
-#if DEBUG_ENTRY
 #include <stdio.h>
-#endif
-
 
 /**
  * @brief Set timestamp to an entry
@@ -15,40 +11,18 @@
  */
 void entry_setTimestamp(entry_t* entry)
 {
-    RTC_DateTypeDef date = rtc_getDate();
-    RTC_TimeTypeDef time = rtc_getTime();
+    RTC_TimeTypeDef stime;
+    RTC_DateTypeDef sdate;
 
-    entry->hour_ = time.Hours;
-    entry->minutes_ = time.Minutes;
+    HAL_RTC_GetTime(&hrtc, &stime, RTC_FORMAT_BIN);
+    HAL_RTC_GetDate(&hrtc, &sdate, RTC_FORMAT_BIN);
+
+    entry->hour_ = stime.Hours;
+    entry->minutes_ = stime.Minutes;
     
-    entry->weekday_ = date.WeekDay;
-    entry->date_ = date.Date;
-    entry->month_ = date.Month;
-}
-
-
-/**
- * @brief Read last saved entry and compares it
- * 
- * @param entry entry for a read entry to be compared to
- * @return comparison result
- */
-bool entry_verifyLast(entry_t* entry)
-{
-    uint32_t tempLastPageAddress, tempLastOffsetInBytes;
-
-    // eeprom_readVariable(lastPageAddress, (uint8_t*)(&tempLastPageAddress));
-    // eeprom_readVariable(lastOffsetInBytes, (uint8_t*)(&tempLastOffsetInBytes));
-
-    entry_t lastEntry;
-    entry_read(&lastEntry, tempLastPageAddress, tempLastOffsetInBytes);
-    
-    #if DEBUG_ENTRY
-    printf("Last written entry:\n\r\n");
-    entry_print(&lastEntry);
-    #endif
-    
-    return entry_isEqual(entry, &lastEntry);
+    entry->weekday_ = sdate.WeekDay;
+    entry->date_ = sdate.Date;
+    entry->month_ = sdate.Month;
 }
 
 /**
@@ -66,22 +40,9 @@ bool entry_isEqual(entry_t* left, entry_t* right)
         && (left->month_ == right->month_)
         && (left->date_ == right->date_)
         && (left->weekday_ == right->weekday_)
-        && (left->counter == right->counter);
+        && (left->UNUSED == right->UNUSED);
 }
 
-/**
- * @brief Reads entry from specified position in flash
- * 
- * @param entry will hold read entry
- * @param page flash address page
- * @param offset flash address offset in a page
- */
-void entry_read(entry_t* entry, uint32_t page, uint32_t offset)
-{
-    W25qxx_ReadBytes((uint8_t *)entry, page*w25qxx.PageSize + offset, sizeof(entry_t));
-}
-
-#if DEBUG_ENTRY
 /**
  * @brief prints entry to the console
  * 
@@ -92,9 +53,8 @@ void entry_print(entry_t* entry)
     printf("Entry nr:%u\r\n", entry->id_);
     printf("Time of creation %u:%u\n", entry->hour_, entry->minutes_);
     printf("Date of creation:\nmonth:%u\ndate:%u\nweekday:%u\r\n", entry->month_, entry->date_, entry->weekday_);
-    printf("placeHolder = %u\n\n\n", entry->placeHolder_);
+    printf("UNUSED = %u\n\n\n", entry->UNUSED);
 }
-#endif
 
 
 void entry_Write(entry_t* entry, uint32_t ddr)
@@ -109,29 +69,17 @@ void entry_Write(entry_t* entry, uint32_t ddr)
     W25qxx_WritePage((uint8_t*)entry, page, offset, sizeof(entry_t));
 }
 
+
+/**
+ * @brief Reads entry from specified position in flash
+ * 
+ * @param entry will hold read entry
+ * @param ddr address
+ */
 void entry_Read(entry_t* entry, uint32_t ddr)
 {
     //convert from entries to bytes
     uint32_t ddr_inBytes = ddr * sizeof(entry_t);
 
     W25qxx_ReadBytes((uint8_t *)entry, ddr_inBytes, sizeof(entry_t));
-}
-
-bool entry_IsEmpty(entry_t* entry)
-{
-    const entry_t blankEntry = {0xffffffffffffffff};
-    return entry_isEqual(entry, &blankEntry);
-}
-
-uint32_t entry_GetLastEntry(entry_t entry)
-{
-    //binary search
-
-    uint32_t ddr_right = w25qxx.PageSize * w25qxx.PageCount / sizeof(entry_t) - 1;
-    uint32_t ddr_left = 0;
-
-    while(ddr_left <= ddr_right){
-        
-    }
-
 }

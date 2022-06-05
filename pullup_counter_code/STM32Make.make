@@ -13,7 +13,7 @@
 ######################################
 # target
 ######################################
-TARGET = pullup_counter_mcuFromAli
+TARGET = pullup_counter_code
 
 
 ######################################
@@ -37,41 +37,42 @@ BUILD_DIR = build
 # C sources
 C_SOURCES =  \
 Core/Src/adc.c \
+Core/Src/cli.c \
 Core/Src/display.c \
+Core/Src/eeprom.c \
 Core/Src/entry.c \
 Core/Src/gpio.c \
-Core/Src/i2c.c \
 Core/Src/main.c \
 Core/Src/rtc.c \
 Core/Src/spi.c \
-Core/Src/stm32f0xx_hal_msp.c \
-Core/Src/stm32f0xx_it.c \
-Core/Src/system_stm32f0xx.c \
+Core/Src/stm32l0xx_hal_msp.c \
+Core/Src/stm32l0xx_it.c \
+Core/Src/system_stm32l0xx.c \
 Core/Src/tim.c \
 Core/Src/usart.c \
-Drivers/STM32F0xx_HAL_Driver/Src/stm32f0xx_hal.c \
-Drivers/STM32F0xx_HAL_Driver/Src/stm32f0xx_hal_adc.c \
-Drivers/STM32F0xx_HAL_Driver/Src/stm32f0xx_hal_adc_ex.c \
-Drivers/STM32F0xx_HAL_Driver/Src/stm32f0xx_hal_cortex.c \
-Drivers/STM32F0xx_HAL_Driver/Src/stm32f0xx_hal_dma.c \
-Drivers/STM32F0xx_HAL_Driver/Src/stm32f0xx_hal_exti.c \
-Drivers/STM32F0xx_HAL_Driver/Src/stm32f0xx_hal_flash.c \
-Drivers/STM32F0xx_HAL_Driver/Src/stm32f0xx_hal_flash_ex.c \
-Drivers/STM32F0xx_HAL_Driver/Src/stm32f0xx_hal_gpio.c \
-Drivers/STM32F0xx_HAL_Driver/Src/stm32f0xx_hal_i2c.c \
-Drivers/STM32F0xx_HAL_Driver/Src/stm32f0xx_hal_i2c_ex.c \
-Drivers/STM32F0xx_HAL_Driver/Src/stm32f0xx_hal_pwr.c \
-Drivers/STM32F0xx_HAL_Driver/Src/stm32f0xx_hal_pwr_ex.c \
-Drivers/STM32F0xx_HAL_Driver/Src/stm32f0xx_hal_rcc.c \
-Drivers/STM32F0xx_HAL_Driver/Src/stm32f0xx_hal_rcc_ex.c \
-Drivers/STM32F0xx_HAL_Driver/Src/stm32f0xx_hal_rtc.c \
-Drivers/STM32F0xx_HAL_Driver/Src/stm32f0xx_hal_rtc_ex.c \
-Drivers/STM32F0xx_HAL_Driver/Src/stm32f0xx_hal_spi.c \
-Drivers/STM32F0xx_HAL_Driver/Src/stm32f0xx_hal_spi_ex.c \
-Drivers/STM32F0xx_HAL_Driver/Src/stm32f0xx_hal_tim.c \
-Drivers/STM32F0xx_HAL_Driver/Src/stm32f0xx_hal_tim_ex.c \
-Drivers/STM32F0xx_HAL_Driver/Src/stm32f0xx_hal_uart.c \
-Drivers/STM32F0xx_HAL_Driver/Src/stm32f0xx_hal_uart_ex.c \
+Drivers/STM32L0xx_HAL_Driver/Src/stm32l0xx_hal.c \
+Drivers/STM32L0xx_HAL_Driver/Src/stm32l0xx_hal_adc.c \
+Drivers/STM32L0xx_HAL_Driver/Src/stm32l0xx_hal_adc_ex.c \
+Drivers/STM32L0xx_HAL_Driver/Src/stm32l0xx_hal_cortex.c \
+Drivers/STM32L0xx_HAL_Driver/Src/stm32l0xx_hal_dma.c \
+Drivers/STM32L0xx_HAL_Driver/Src/stm32l0xx_hal_exti.c \
+Drivers/STM32L0xx_HAL_Driver/Src/stm32l0xx_hal_flash.c \
+Drivers/STM32L0xx_HAL_Driver/Src/stm32l0xx_hal_flash_ex.c \
+Drivers/STM32L0xx_HAL_Driver/Src/stm32l0xx_hal_flash_ramfunc.c \
+Drivers/STM32L0xx_HAL_Driver/Src/stm32l0xx_hal_gpio.c \
+Drivers/STM32L0xx_HAL_Driver/Src/stm32l0xx_hal_i2c.c \
+Drivers/STM32L0xx_HAL_Driver/Src/stm32l0xx_hal_i2c_ex.c \
+Drivers/STM32L0xx_HAL_Driver/Src/stm32l0xx_hal_pwr.c \
+Drivers/STM32L0xx_HAL_Driver/Src/stm32l0xx_hal_pwr_ex.c \
+Drivers/STM32L0xx_HAL_Driver/Src/stm32l0xx_hal_rcc.c \
+Drivers/STM32L0xx_HAL_Driver/Src/stm32l0xx_hal_rcc_ex.c \
+Drivers/STM32L0xx_HAL_Driver/Src/stm32l0xx_hal_rtc.c \
+Drivers/STM32L0xx_HAL_Driver/Src/stm32l0xx_hal_rtc_ex.c \
+Drivers/STM32L0xx_HAL_Driver/Src/stm32l0xx_hal_spi.c \
+Drivers/STM32L0xx_HAL_Driver/Src/stm32l0xx_hal_tim.c \
+Drivers/STM32L0xx_HAL_Driver/Src/stm32l0xx_hal_tim_ex.c \
+Drivers/STM32L0xx_HAL_Driver/Src/stm32l0xx_hal_uart.c \
+Drivers/STM32L0xx_HAL_Driver/Src/stm32l0xx_hal_uart_ex.c \
 Drivers/w25qxx/w25qxx.c
 
 
@@ -80,7 +81,7 @@ CPP_SOURCES = \
 
 # ASM sources
 ASM_SOURCES =  \
-startup_stm32f031x6.s
+startup_stm32l051xx.s
 
 
 
@@ -112,7 +113,7 @@ BIN = $(CP) -O binary -S
 # CFLAGS
 #######################################
 # cpu
-CPU = -mcpu=cortex-m0
+CPU = -mcpu=cortex-m0plus
 
 # fpu
 FPU = 
@@ -129,13 +130,13 @@ AS_DEFS =
 
 # C defines
 C_DEFS =  \
--DSTM32F031x6 \
+-DSTM32L051xx \
 -DUSE_HAL_DRIVER
 
 
 # CXX defines
 CXX_DEFS =  \
--DSTM32F031x6 \
+-DSTM32L051xx \
 -DUSE_HAL_DRIVER
 
 
@@ -145,10 +146,10 @@ AS_INCLUDES = \
 # C includes
 C_INCLUDES =  \
 -ICore/Inc \
--IDrivers/CMSIS/Device/ST/STM32F0xx/Include \
+-IDrivers/CMSIS/Device/ST/STM32L0xx/Include \
 -IDrivers/CMSIS/Include \
--IDrivers/STM32F0xx_HAL_Driver/Inc \
--IDrivers/STM32F0xx_HAL_Driver/Inc/Legacy \
+-IDrivers/STM32L0xx_HAL_Driver/Inc \
+-IDrivers/STM32L0xx_HAL_Driver/Inc/Legacy \
 -IDrivers/w25qxx
 
 
@@ -166,7 +167,7 @@ endif
 
 # Add additional flags
 CFLAGS += 
-ASFLAGS += -specs=nosys.specs 
+ASFLAGS += 
 CXXFLAGS += 
 
 # Generate dependency information
@@ -177,7 +178,7 @@ CXXFLAGS += -MMD -MP -MF"$(@:%.o=%.d)"
 # LDFLAGS
 #######################################
 # link script
-LDSCRIPT = STM32F031C6Tx_FLASH.ld
+LDSCRIPT = STM32L051C8Tx_FLASH.ld
 
 # libraries
 LIBS = -lc -lm -lnosys 
@@ -242,7 +243,7 @@ flash: $(BUILD_DIR)/$(TARGET).elf
 # erase
 #######################################
 erase: $(BUILD_DIR)/$(TARGET).elf
-	"C:/USERS/MACIE/APPDATA/ROAMING/CODE/USER/GLOBALSTORAGE/BMD.STM32-FOR-VSCODE/@XPACK-DEV-TOOLS/OPENOCD/0.11.0-2.1/.CONTENT/BIN/OPENOCD.EXE" -f ./openocd.cfg -c "init; reset halt; stm32f0x mass_erase 0; exit"
+	"C:/USERS/MACIE/APPDATA/ROAMING/CODE/USER/GLOBALSTORAGE/BMD.STM32-FOR-VSCODE/@XPACK-DEV-TOOLS/OPENOCD/0.11.0-2.1/.CONTENT/BIN/OPENOCD.EXE" -f ./openocd.cfg -c "init; reset halt; stm32l0x mass_erase 0; exit"
 
 #######################################
 # clean up

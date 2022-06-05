@@ -22,10 +22,6 @@
 
 /* USER CODE BEGIN 0 */
 #include <stdbool.h>
-#include "display.h"
-#include "tim.h"
-#include "main.h"
-
 /* USER CODE END 0 */
 
 /*----------------------------------------------------------------------------*/
@@ -33,8 +29,6 @@
 /*----------------------------------------------------------------------------*/
 /* USER CODE BEGIN 1 */
 
-bool volatile distanceFlag = false;
-extern TIM_HandleTypeDef const* shutdownTim;
 /* USER CODE END 1 */
 
 /** Configure pins as
@@ -50,50 +44,57 @@ void MX_GPIO_Init(void)
   GPIO_InitTypeDef GPIO_InitStruct = {0};
 
   /* GPIO Ports Clock Enable */
+  __HAL_RCC_GPIOC_CLK_ENABLE();
   __HAL_RCC_GPIOA_CLK_ENABLE();
   __HAL_RCC_GPIOB_CLK_ENABLE();
 
   /*Configure GPIO pin Output Level */
-  HAL_GPIO_WritePin(GPIOA, BAT_SENSE_EN_Pin|NCE_Pin|dis_b_Pin|dis_c_Pin
-                          |dis_e_Pin|dis_d_Pin|dis_g_Pin, GPIO_PIN_RESET);
+  HAL_GPIO_WritePin(GPIOB, CE_Pin|dis_c_Pin|dis_e_Pin|dis_d_Pin
+                          |dis_g_Pin|DISTANCE_EN_Pin, GPIO_PIN_RESET);
 
   /*Configure GPIO pin Output Level */
-  HAL_GPIO_WritePin(GPIOB, dis_sel_1_Pin|dis_sel_0_Pin|dis_f_Pin|dis_a_Pin, GPIO_PIN_RESET);
+  HAL_GPIO_WritePin(GPIOA, dis_a_Pin|dis_b_Pin|dis_f_Pin|dis_sel_1_Pin
+                          |dis_sel_0_Pin|BAT_SENSE_EN_Pin, GPIO_PIN_RESET);
 
-  /*Configure GPIO pins : PAPin PAPin PAPin PAPin
-                           PAPin PAPin PAPin */
-  GPIO_InitStruct.Pin = BAT_SENSE_EN_Pin|NCE_Pin|dis_b_Pin|dis_c_Pin
-                          |dis_e_Pin|dis_d_Pin|dis_g_Pin;
-  GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
+  /*Configure GPIO pin : PtPin */
+  GPIO_InitStruct.Pin = USB_FLAG_Pin;
+  GPIO_InitStruct.Mode = GPIO_MODE_INPUT;
   GPIO_InitStruct.Pull = GPIO_NOPULL;
-  GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
-  HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
+  HAL_GPIO_Init(USB_FLAG_GPIO_Port, &GPIO_InitStruct);
 
-  /*Configure GPIO pins : PBPin PBPin PBPin PBPin */
-  GPIO_InitStruct.Pin = dis_sel_1_Pin|dis_sel_0_Pin|dis_f_Pin|dis_a_Pin;
+  /*Configure GPIO pins : PBPin PBPin PBPin PBPin
+                           PBPin PBPin */
+  GPIO_InitStruct.Pin = CE_Pin|dis_c_Pin|dis_e_Pin|dis_d_Pin
+                          |dis_g_Pin|DISTANCE_EN_Pin;
   GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
   GPIO_InitStruct.Pull = GPIO_NOPULL;
   GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
   HAL_GPIO_Init(GPIOB, &GPIO_InitStruct);
 
-  /*Configure GPIO pin : PtPin */
-  GPIO_InitStruct.Pin = DIST_OUTD_Pin;
-  GPIO_InitStruct.Mode = GPIO_MODE_IT_FALLING;
+  /*Configure GPIO pins : PAPin PAPin PAPin PAPin
+                           PAPin PAPin */
+  GPIO_InitStruct.Pin = dis_a_Pin|dis_b_Pin|dis_f_Pin|dis_sel_1_Pin
+                          |dis_sel_0_Pin|BAT_SENSE_EN_Pin;
+  GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
   GPIO_InitStruct.Pull = GPIO_NOPULL;
-  HAL_GPIO_Init(DIST_OUTD_GPIO_Port, &GPIO_InitStruct);
+  GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
+  HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
 
-  /* EXTI interrupt init*/
-  HAL_NVIC_SetPriority(EXTI4_15_IRQn, 0, 0);
-  HAL_NVIC_EnableIRQ(EXTI4_15_IRQn);
+  /*Configure GPIO pins : PBPin PBPin */
+  GPIO_InitStruct.Pin = START_Pin|TouchPin_Pin;
+  GPIO_InitStruct.Mode = GPIO_MODE_IT_RISING;
+  GPIO_InitStruct.Pull = GPIO_NOPULL;
+  HAL_GPIO_Init(GPIOB, &GPIO_InitStruct);
 
 }
 
 /* USER CODE BEGIN 2 */
-void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin)
+
+bool GPIO_GetUsbFlag()
 {
-  wakeUpRoutine();
-  distanceFlag = true;
+  return (bool) HAL_GPIO_ReadPin(USB_FLAG_GPIO_Port, USB_FLAG_Pin);
 }
+
 /* USER CODE END 2 */
 
 /************************ (C) COPYRIGHT STMicroelectronics *****END OF FILE****/

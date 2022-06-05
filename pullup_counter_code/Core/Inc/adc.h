@@ -28,7 +28,7 @@ extern "C" {
 #include "main.h"
 
 /* USER CODE BEGIN Includes */
-float ADC_MeasureBatteryVoltage(void);
+
 /* USER CODE END Includes */
 
 extern ADC_HandleTypeDef hadc;
@@ -40,7 +40,8 @@ extern ADC_HandleTypeDef hadc;
 void MX_ADC_Init(void);
 
 /* USER CODE BEGIN Prototypes */
-
+uint8_t ADC_MeasureDistance();
+float ADC_MeasureBattery();
 /* USER CODE END Prototypes */
 
 #ifdef __cplusplus

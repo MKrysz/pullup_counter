@@ -44,9 +44,10 @@ void MX_RTC_Init(void)
   */
   hrtc.Instance = RTC;
   hrtc.Init.HourFormat = RTC_HOURFORMAT_24;
-  hrtc.Init.AsynchPrediv = 65;
-  hrtc.Init.SynchPrediv = 600;
+  hrtc.Init.AsynchPrediv = 127;
+  hrtc.Init.SynchPrediv = 255;
   hrtc.Init.OutPut = RTC_OUTPUT_DISABLE;
+  hrtc.Init.OutPutRemap = RTC_OUTPUT_REMAP_NONE;
   hrtc.Init.OutPutPolarity = RTC_OUTPUT_POLARITY_HIGH;
   hrtc.Init.OutPutType = RTC_OUTPUT_TYPE_OPENDRAIN;
   if (HAL_RTC_Init(&hrtc) != HAL_OK)
@@ -55,7 +56,25 @@ void MX_RTC_Init(void)
   }
 
   /* USER CODE BEGIN Check_RTC_BKUP */
-  //Do not allow MX to reset RTC's values
+  // RTC time set
+  sTime.Hours = 0x0;
+  sTime.Minutes = 0x0;
+  sTime.Seconds = 0x0;
+  sTime.DayLightSaving = RTC_DAYLIGHTSAVING_NONE;
+  sTime.StoreOperation = RTC_STOREOPERATION_RESET;
+  if (HAL_RTC_SetTime(&hrtc, &sTime, RTC_FORMAT_BCD) != HAL_OK)
+  {
+    Error_Handler();
+  }
+  sDate.WeekDay = RTC_WEEKDAY_MONDAY;
+  sDate.Month = RTC_MONTH_JANUARY;
+  sDate.Date = 0x1;
+  sDate.Year = 0x0;
+
+  if (HAL_RTC_SetDate(&hrtc, &sDate, RTC_FORMAT_BCD) != HAL_OK)
+  {
+    Error_Handler();
+  }
   return;
   /* USER CODE END Check_RTC_BKUP */
 
@@ -65,7 +84,7 @@ void MX_RTC_Init(void)
   sTime.Minutes = 0x0;
   sTime.Seconds = 0x0;
   sTime.DayLightSaving = RTC_DAYLIGHTSAVING_NONE;
-  sTime.StoreOperation = RTC_STOREOPERATION_SET;
+  sTime.StoreOperation = RTC_STOREOPERATION_RESET;
   if (HAL_RTC_SetTime(&hrtc, &sTime, RTC_FORMAT_BCD) != HAL_OK)
   {
     Error_Handler();
@@ -118,43 +137,6 @@ void HAL_RTC_MspDeInit(RTC_HandleTypeDef* rtcHandle)
 }
 
 /* USER CODE BEGIN 1 */
-/**
- * @brief sets rtc's time and date; part of programming routine
- * 
- */
-void rtc_setTime()
-{
-  RTC_TimeTypeDef sTime; 
-  RTC_DateTypeDef sDate; 
-
-  sTime.Hours = 0x17; // set hours 
-  sTime.Minutes = 0x19; // set minutes 
-  sTime.Seconds = 0x00; // set seconds 
-  sTime.DayLightSaving = RTC_DAYLIGHTSAVING_NONE; 
-  sTime.StoreOperation = RTC_STOREOPERATION_RESET; 
-
-  sDate.WeekDay = RTC_WEEKDAY_WEDNESDAY; // day 
-  sDate.Month = RTC_MONTH_MAY; // month 
-  sDate.Date = 0x03; // date 
-  sDate.Year = 0x22; // year 
-
-  HAL_RTC_SetTime(&hrtc, &sTime, RTC_FORMAT_BCD);
-  HAL_RTC_SetDate(&hrtc, &sDate, RTC_FORMAT_BCD);
-}
-
-RTC_DateTypeDef rtc_getDate()
-{
-  RTC_DateTypeDef result;
-  HAL_RTC_GetDate(&hrtc, &result, RTC_FORMAT_BIN);
-  return result;
-}
-
-RTC_TimeTypeDef rtc_getTime()
-{
-  RTC_TimeTypeDef result;
-  HAL_RTC_GetTime(&hrtc, &result, RTC_FORMAT_BIN);
-  return result;
-}
 
 /* USER CODE END 1 */
 

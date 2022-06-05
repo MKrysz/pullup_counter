@@ -20,7 +20,6 @@
 /* Includes ------------------------------------------------------------------*/
 #include "main.h"
 #include "adc.h"
-#include "i2c.h"
 #include "rtc.h"
 #include "spi.h"
 #include "tim.h"
@@ -29,11 +28,13 @@
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
-#include "w25qxx.h"
+#include <string.h>
 #include <stdbool.h>
+
 #include "display.h"
+#include "eeprom.h"
+#include "cli.h"
 #include "entry.h"
-#include <stdio.h>
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -53,18 +54,18 @@
 /* Private variables ---------------------------------------------------------*/
 
 /* USER CODE BEGIN PV */
-extern volatile bool distanceFlag;
-extern volatile bool shutdownFlag;
+const uint32_t pullupTimeMin = 250;
+const uint32_t pullupTimeMax = 1000;
+//TODO measure proper distance threshold
+const uint16_t pullupDistThr = 255;
+const uint32_t timeTillShutdown = 2000;
 
+extern volatile bool GPIO_StartFlag;
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
 void SystemClock_Config(void);
 /* USER CODE BEGIN PFP */
-void myErrorHandler();
-void updateCounter(uint8_t date, uint8_t month);
-void batteryCheck();
-
 /* USER CODE END PFP */
 
 /* Private user code ---------------------------------------------------------*/
@@ -100,58 +101,77 @@ int main(void)
 
   /* Initialize all configured peripherals */
   MX_GPIO_Init();
-  MX_I2C1_Init();
   MX_RTC_Init();
   MX_SPI1_Init();
-  MX_TIM16_Init();
-  MX_TIM17_Init();
+  MX_USART2_UART_Init();
   MX_ADC_Init();
-  MX_USART1_UART_Init();
+  MX_TIM6_Init();
   /* USER CODE BEGIN 2 */
-  uint32_t timeStart, timeDelta;
-  timeStart = HAL_GetTick();
-  while(!W25qxx_Init());
-  // programmingRoutine(); 
-  wakeUpRoutine();
-  Display_setInt(0); 
 
   /* USER CODE END 2 */
 
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
-  const uint32_t pullupTimeMin = 250;
-  const uint32_t pullupTimeMax = 1000;
-  printf("start\n");
+
+
   while (1)
   {
-    //TODO: add battery check
-    //TODO: add usb interface
-
-    if (distanceFlag)
-    {
-      timeStart = HAL_GetTick();
-      while ((!HAL_GPIO_ReadPin(DIST_OUTD_GPIO_Port, DIST_OUTD_Pin)) && ((HAL_GetTick() - timeStart) < pullupTimeMax));
-      distanceFlag = false;
-      timeDelta = HAL_GetTick() - timeStart;
-      if (timeDelta < pullupTimeMin)
+    
+    // Check battery voltage
+    // if low voltage detected inform user via 7-seg display
+    //TODO Display time parameters
+    if(ADC_MeasureBattery() < 2.65){
+      for (size_t i = 0; i < 2; i++)
       {
+        // create a scrolling text
+        char lowBatMessage[] = "LOW BATTERY";
+        for (size_t j = 0; j < sizeof(lowBatMessage)-1; j++)
+        {
+          Display_setCharToDigit(0, lowBatMessage[j]);
+          Display_setCharToDigit(1, lowBatMessage[j+1]);
+          HAL_Delay(250);
+        }
+        HAL_Delay(1000);
       }
-      else if (timeDelta < pullupTimeMax)
-      {
+    }
+
+    // user interface -- does nothing if USB Flag not detected
+    CLI_UserInterface();
+
+
+    //detecting, saving and showing pullups
+    uint32_t lastDetectedPullup = HAL_GetTick();
+    uint32_t pullupCounter = EEPROM_ReadUINT32(EEPROM_VAR_PULLUP_COUNTER);
+    Display_enable();
+    Display_setInt(pullupCounter);
+    while(HAL_GetTick()-lastDetectedPullup < timeTillShutdown){
+      uint32_t pullupStart = HAL_GetTick();
+      while(ADC_MeasureDistance()<pullupDistThr);
+      uint32_t pullupEnd = HAL_GetTick();
+      uint32_t timeDelta = pullupEnd - pullupStart;
+      if(pullupTimeMin < timeDelta && timeDelta < pullupTimeMax){
+        lastDetectedPullup = HAL_GetTick();
         entry_t entry;
-        entry_create(&entry);
-        entry_save(&entry);
-        if (!entry_verifyLast(&entry))
-          myErrorHandler();
-        updateCounter(entry.date_, entry.month_);
+        entry_setTimestamp(&entry);
+        uint32_t currentDDR = EEPROM_ReadUINT32(EEPROM_VAR_LAST_DDR)+1;
+        entry_Write(&entry, currentDDR);
+        entry_t tempEntry;
+        entry_Read(&tempEntry, currentDDR);
+        if(!entry_isEqual(&entry, &tempEntry)){
+          //TODO WRITE FLASH ERROR DISPALY
+        }
+        pullupCounter = EEPROM_ReadUINT32(EEPROM_VAR_PULLUP_COUNTER);
+        pullupCounter++;
+        EEPROM_WriteUINT32(EEPROM_VAR_PULLUP_COUNTER, pullupCounter);
+        Display_setInt(pullupCounter);
       }
     }
 
-    if (shutdownFlag)
-    {
-      shutdownFlag = false;
-      sleepRoutine();
-    }
+    //shutdown routine
+    //going into STOP mode with RTC
+    Display_disable();
+    HAL_SuspendTick();
+    HAL_PWR_EnterSTOPMode(PWR_LOWPOWERREGULATOR_ON, PWR_STOPENTRY_WFI);
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
@@ -169,16 +189,20 @@ void SystemClock_Config(void)
   RCC_ClkInitTypeDef RCC_ClkInitStruct = {0};
   RCC_PeriphCLKInitTypeDef PeriphClkInit = {0};
 
+  /** Configure the main internal regulator output voltage
+  */
+  __HAL_PWR_VOLTAGESCALING_CONFIG(PWR_REGULATOR_VOLTAGE_SCALE1);
+  /** Configure LSE Drive Capability
+  */
+  HAL_PWR_EnableBkUpAccess();
+  __HAL_RCC_LSEDRIVE_CONFIG(RCC_LSEDRIVE_LOW);
   /** Initializes the RCC Oscillators according to the specified parameters
   * in the RCC_OscInitTypeDef structure.
   */
-  RCC_OscInitStruct.OscillatorType = RCC_OSCILLATORTYPE_HSI|RCC_OSCILLATORTYPE_HSI14
-                              |RCC_OSCILLATORTYPE_LSI;
+  RCC_OscInitStruct.OscillatorType = RCC_OSCILLATORTYPE_HSI|RCC_OSCILLATORTYPE_LSE;
+  RCC_OscInitStruct.LSEState = RCC_LSE_ON;
   RCC_OscInitStruct.HSIState = RCC_HSI_ON;
-  RCC_OscInitStruct.HSI14State = RCC_HSI14_ON;
   RCC_OscInitStruct.HSICalibrationValue = RCC_HSICALIBRATION_DEFAULT;
-  RCC_OscInitStruct.HSI14CalibrationValue = 16;
-  RCC_OscInitStruct.LSIState = RCC_LSI_ON;
   RCC_OscInitStruct.PLL.PLLState = RCC_PLL_NONE;
   if (HAL_RCC_OscConfig(&RCC_OscInitStruct) != HAL_OK)
   {
@@ -187,20 +211,19 @@ void SystemClock_Config(void)
   /** Initializes the CPU, AHB and APB buses clocks
   */
   RCC_ClkInitStruct.ClockType = RCC_CLOCKTYPE_HCLK|RCC_CLOCKTYPE_SYSCLK
-                              |RCC_CLOCKTYPE_PCLK1;
+                              |RCC_CLOCKTYPE_PCLK1|RCC_CLOCKTYPE_PCLK2;
   RCC_ClkInitStruct.SYSCLKSource = RCC_SYSCLKSOURCE_HSI;
   RCC_ClkInitStruct.AHBCLKDivider = RCC_SYSCLK_DIV1;
   RCC_ClkInitStruct.APB1CLKDivider = RCC_HCLK_DIV1;
+  RCC_ClkInitStruct.APB2CLKDivider = RCC_HCLK_DIV1;
 
   if (HAL_RCC_ClockConfig(&RCC_ClkInitStruct, FLASH_LATENCY_0) != HAL_OK)
   {
     Error_Handler();
   }
-  PeriphClkInit.PeriphClockSelection = RCC_PERIPHCLK_USART1|RCC_PERIPHCLK_I2C1
-                              |RCC_PERIPHCLK_RTC;
-  PeriphClkInit.Usart1ClockSelection = RCC_USART1CLKSOURCE_PCLK1;
-  PeriphClkInit.I2c1ClockSelection = RCC_I2C1CLKSOURCE_HSI;
-  PeriphClkInit.RTCClockSelection = RCC_RTCCLKSOURCE_LSI;
+  PeriphClkInit.PeriphClockSelection = RCC_PERIPHCLK_USART2|RCC_PERIPHCLK_RTC;
+  PeriphClkInit.Usart2ClockSelection = RCC_USART2CLKSOURCE_PCLK1;
+  PeriphClkInit.RTCClockSelection = RCC_RTCCLKSOURCE_LSE;
   if (HAL_RCCEx_PeriphCLKConfig(&PeriphClkInit) != HAL_OK)
   {
     Error_Handler();
@@ -208,99 +231,11 @@ void SystemClock_Config(void)
 }
 
 /* USER CODE BEGIN 4 */
-
-/**
- * @brief this function should only be used when programming !call W25qxx_Init() first!
- * 
- */
-void programmingRoutine()
-{
-  // rtc_setTime();
-  W25qxx_EraseChip();
-  // eeprom_eraseVariables();
-}
-
-
-/**
- * @brief routine for putting MCU to low power mode
- * 
- */
-void sleepRoutine()
-{
-  Display_disable();
-  // printf("entering stop mode\n");
-
-  HAL_SuspendTick();
-  HAL_PWR_EnterSTOPMode(PWR_LOWPOWERREGULATOR_ON, PWR_STOPENTRY_WFI);
-}
-
-
-/**
- * @brief routine for waking MCU up
- * 
- */
-void wakeUpRoutine()
+void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin)
 {
   SystemClock_Config();
   HAL_ResumeTick();
-  // printf("wake up\n");
-
-  Display_enable();
-  tim_shutdownCountdown();
 }
-
-/**
- * @brief updates counter in eeprom and displays current value
- * 
- * @param date current date
- * @param month current month
- */
-void updateCounter(uint8_t date, uint8_t month)
-{
-}
-
-/**
- * @brief function informing that an error has happened
- * 
- */
-void myErrorHandler()
-{
-  Display_setCharToDigit(dis0, '-');
-  Display_setCharToDigit(dis1, '-');
-  Display_enable();
-  while(1);
-}
-
-int _write(int fd, char* ptr, int len) {
-  HAL_StatusTypeDef hstatus;
-
-  hstatus = HAL_UART_Transmit(&huart1, (uint8_t *) ptr, len, HAL_MAX_DELAY);
-  if (hstatus == HAL_OK)
-    return len;
-  return -1;
-}
-
-void batteryCheck()
-{
-  //TODO: calculate thr
-  const float thr = 3.4F;
-  const char message[] = "BATTERY LOW";
-  const size_t msgSize = 12;
-
-  float voltage = ADC_MeasureBatteryVoltage();
-  if(voltage < thr){
-    for(size_t j = 0; j<3; j++)
-    {
-      for (size_t i = 1; i < msgSize; i++)
-      {
-        Display_setCharToDigit(0, message[i]);
-        Display_setCharToDigit(1, message[i-1]);
-        HAL_Delay(500);
-      }
-    }
-  }
-}
-
 /* USER CODE END 4 */
 
 /**

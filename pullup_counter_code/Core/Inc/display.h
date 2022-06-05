@@ -5,7 +5,7 @@
 
 #define DISPLAY_DP_USED 0
 #define NR_OF_DISPLAY 2
-#define DISPLAY_HTIM htim16
+#define DISPLAY_HTIM htim6
 
 // a,b,c,d,e,f,g,dp
 // typedef uint8_t displayCode_t;

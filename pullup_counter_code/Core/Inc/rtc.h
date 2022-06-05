@@ -28,7 +28,6 @@ extern "C" {
 #include "main.h"
 
 /* USER CODE BEGIN Includes */
-#include "entry.h"
 
 /* USER CODE END Includes */
 
@@ -41,9 +40,6 @@ extern RTC_HandleTypeDef hrtc;
 void MX_RTC_Init(void);
 
 /* USER CODE BEGIN Prototypes */
-void rtc_setTime();
-RTC_DateTypeDef rtc_getDate();
-RTC_TimeTypeDef rtc_getTime();
 
 /* USER CODE END Prototypes */
 
