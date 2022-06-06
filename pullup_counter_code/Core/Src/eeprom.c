@@ -24,6 +24,5 @@ void EEPROM_WriteUINT32(uint32_t ddr, uint32_t data)
  */
 uint32_t EEPROM_ReadUINT32(uint32_t ddr)
 {
-    uint32_t *temp = ddr;
-    return *(temp+EEPROM_BASE_ADDR);
+    return *((uint32_t *)ddr+EEPROM_BASE_ADDR);
 }

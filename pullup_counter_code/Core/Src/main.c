@@ -123,14 +123,7 @@ int main(void)
     if(ADC_MeasureBattery() < 2.65){
       for (size_t i = 0; i < 2; i++)
       {
-        // create a scrolling text
-        char lowBatMessage[] = "LOW BATTERY";
-        for (size_t j = 0; j < sizeof(lowBatMessage)-1; j++)
-        {
-          Display_setCharToDigit(0, lowBatMessage[j]);
-          Display_setCharToDigit(1, lowBatMessage[j+1]);
-          HAL_Delay(250);
-        }
+        Display_ShowString("LOW BATTERY", 250);
         HAL_Delay(1000);
       }
     }
@@ -158,9 +151,18 @@ int main(void)
         entry_t tempEntry;
         entry_Read(&tempEntry, currentDDR);
         if(!entry_isEqual(&entry, &tempEntry)){
-          //TODO WRITE FLASH ERROR DISPALY
+          while(1){
+            Display_ShowString("FLASH ERROR", 250);
+            HAL_Delay(1000);
+          }
         }
+        EEPROM_WriteUINT32(EEPROM_VAR_LAST_DDR, currentDDR);
         pullupCounter = EEPROM_ReadUINT32(EEPROM_VAR_PULLUP_COUNTER);
+        entry_t lastEntry;
+        entry_Read(&lastEntry, currentDDR-1);
+        if(lastEntry.date_ != entry.date_ || lastEntry.month_ != entry.month_){
+          pullupCounter = 0;
+        }
         pullupCounter++;
         EEPROM_WriteUINT32(EEPROM_VAR_PULLUP_COUNTER, pullupCounter);
         Display_setInt(pullupCounter);
@@ -172,6 +174,7 @@ int main(void)
     Display_disable();
     HAL_SuspendTick();
     HAL_PWR_EnterSTOPMode(PWR_LOWPOWERREGULATOR_ON, PWR_STOPENTRY_WFI);
+
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */

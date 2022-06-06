@@ -36,6 +36,7 @@ void Display_timerCallback();
 void Display_setInt(unsigned int integer);
 void Display_enable();
 void Display_disable();
+void Display_ShowString(char *msg, uint32_t delayTime);
 
 
 

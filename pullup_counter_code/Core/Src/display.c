@@ -204,6 +204,7 @@ void _writeDisplayPort(uint8_t value)
 
 /**
  * @brief turns the display for specified amount of time !function obsolete - do not use!
+ * !funcion obsolete
  * 
  * @param ONtime time for display to be on, !will wait for the next multiple of 33!
  */
@@ -311,10 +312,30 @@ void Display_disable()
     isDisplayON = false;
 }
 
+/**
+ * @brief non-blocking function used to show unsigned int on the display 
+ * 
+ * @param integer 
+ */
 void Display_setInt(unsigned int integer)
 {
     for(int dis = 0; dis<NR_OF_DISPLAY; dis++){
         Display_setIntToDigit(NR_OF_DISPLAY-dis-1, integer%10);
         integer /= 10;
+    }
+}
+
+/**
+ * @brief blocking function used to show scrolling text on the display; stops scrolling after one rotation
+ * 
+ * @param msg pointer to a string
+ * @param delayTime time in ms between between each scroll
+ */
+void Display_ShowString(char *msg, uint32_t delayTime)
+{
+    for (size_t i = 1; msg[i] != '\0'; i++){
+        Display_setCharToDigit(0, msg[i-1]);
+        Display_setCharToDigit(1, msg[i]);
+        HAL_Delay(delayTime);
     }
 }
