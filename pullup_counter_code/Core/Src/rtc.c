@@ -21,7 +21,7 @@
 #include "rtc.h"
 
 /* USER CODE BEGIN 0 */
-
+#include <stdio.h>
 /* USER CODE END 0 */
 
 RTC_HandleTypeDef hrtc;
@@ -137,7 +137,20 @@ void HAL_RTC_MspDeInit(RTC_HandleTypeDef* rtcHandle)
 }
 
 /* USER CODE BEGIN 1 */
+void RTC_Print()
+{
+  RTC_TimeTypeDef sTime;
+  RTC_DateTypeDef sDate;
 
+  HAL_RTC_GetTime(&hrtc, &sTime, FORMAT_BIN);
+  HAL_RTC_GetDate(&hrtc, &sDate, FORMAT_BIN);
+
+  printf("%hhu:%hhu:%hhu\n\r", 
+  sTime.Hours, sTime.Minutes, sTime.Seconds);
+  printf("%hhu/%hhu/20%hhu\n\r",
+  sDate.Date, sDate.Month, sDate.Year);
+  printf("Weekday = %hhu\n\r", sDate.WeekDay);
+}
 /* USER CODE END 1 */
 
 /************************ (C) COPYRIGHT STMicroelectronics *****END OF FILE****/

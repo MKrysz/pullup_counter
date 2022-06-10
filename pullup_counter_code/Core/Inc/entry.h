@@ -28,10 +28,10 @@ typedef struct _entry_struct
 
 
 
-void entry_Write(entry_t* entry, uint32_t ddr);
-void entry_Read(entry_t* entry, uint32_t ddr);
-void entry_setTimestamp(entry_t* entry);
-bool entry_isEqual(entry_t* left, entry_t* right);
-void entry_print(entry_t* entry);
+void ENTRY_Write(entry_t* entry, uint32_t ddr);
+void ENTRY_Read(entry_t* entry, uint32_t ddr);
+void ENTRY_SetTimestamp(entry_t* entry);
+bool ENTRY_IsEqual(entry_t* left, entry_t* right);
+void ENTRY_Print(entry_t* entry);
 
 #endif /* A7F47A81_E286_4B5E_AAFF_FFE1E1D6999C */

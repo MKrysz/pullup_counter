@@ -144,7 +144,23 @@ void HAL_ADC_MspDeInit(ADC_HandleTypeDef* adcHandle)
 
 /* USER CODE BEGIN 1 */
 
-uint8_t ADC_MeasureDistance()
+/**
+ * @brief measures distance
+ * 
+ * @return uint32_t measured distance in mm
+ */
+uint32_t ADC_MeasureDistance()
+{
+
+}
+
+//TODO change return unit to mV ant return type to uint32_t
+/**
+ * @brief 
+ * 
+ * @return float battery voltage in V
+ */
+float ADC_MeasureBattery()
 {
   //TODO: calculate multiplier
   const float multiplier = 0.1F;
@@ -153,12 +169,6 @@ uint8_t ADC_MeasureDistance()
   HAL_ADC_PollForConversion(&hadc, HAL_MAX_DELAY);
   uint16_t raw = HAL_ADC_GetValue(&hadc);
   return (float)(raw) * multiplier;
-
-}
-
-float ADC_MeasureBattery()
-{
-
 }
 /* USER CODE END 1 */
 

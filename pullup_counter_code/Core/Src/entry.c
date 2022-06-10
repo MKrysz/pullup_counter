@@ -9,7 +9,7 @@
  * 
  * @param entry
  */
-void entry_setTimestamp(entry_t* entry)
+void ENTRY_SetTimestamp(entry_t* entry)
 {
     RTC_TimeTypeDef stime;
     RTC_DateTypeDef sdate;
@@ -32,7 +32,7 @@ void entry_setTimestamp(entry_t* entry)
  * @param right second entry
  * @return true if all of both entries' attributes hold the same value
  */
-bool entry_isEqual(entry_t* left, entry_t* right)
+bool ENTRY_IsEqual(entry_t* left, entry_t* right)
 {
     return (left->id_ == right->id_)
         && (left->hour_ == right->hour_)
@@ -48,7 +48,7 @@ bool entry_isEqual(entry_t* left, entry_t* right)
  * 
  * @param entry 
  */
-void entry_print(entry_t* entry)
+void ENTRY_Print(entry_t* entry)
 {
     printf("Entry nr:%u\r\n", entry->id_);
     printf("Time of creation %u:%u\n", entry->hour_, entry->minutes_);
@@ -57,7 +57,7 @@ void entry_print(entry_t* entry)
 }
 
 
-void entry_Write(entry_t* entry, uint32_t ddr)
+void ENTRY_Write(entry_t* entry, uint32_t ddr)
 {
     //convert from entries to bytes
     uint32_t ddr_inBytes = ddr * sizeof(entry_t);
@@ -76,7 +76,7 @@ void entry_Write(entry_t* entry, uint32_t ddr)
  * @param entry will hold read entry
  * @param ddr address
  */
-void entry_Read(entry_t* entry, uint32_t ddr)
+void ENTRY_Read(entry_t* entry, uint32_t ddr)
 {
     //convert from entries to bytes
     uint32_t ddr_inBytes = ddr * sizeof(entry_t);

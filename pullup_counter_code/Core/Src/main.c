@@ -145,12 +145,12 @@ int main(void)
       if(pullupTimeMin < timeDelta && timeDelta < pullupTimeMax){
         lastDetectedPullup = HAL_GetTick();
         entry_t entry;
-        entry_setTimestamp(&entry);
+        ENTRY_SetTimestamp(&entry);
         uint32_t currentDDR = EEPROM_ReadUINT32(EEPROM_VAR_LAST_DDR)+1;
-        entry_Write(&entry, currentDDR);
+        ENTRY_Write(&entry, currentDDR);
         entry_t tempEntry;
-        entry_Read(&tempEntry, currentDDR);
-        if(!entry_isEqual(&entry, &tempEntry)){
+        ENTRY_Read(&tempEntry, currentDDR);
+        if(!ENTRY_IsEqual(&entry, &tempEntry)){
           while(1){
             Display_ShowString("FLASH ERROR", 250);
             HAL_Delay(1000);
@@ -159,7 +159,7 @@ int main(void)
         EEPROM_WriteUINT32(EEPROM_VAR_LAST_DDR, currentDDR);
         pullupCounter = EEPROM_ReadUINT32(EEPROM_VAR_PULLUP_COUNTER);
         entry_t lastEntry;
-        entry_Read(&lastEntry, currentDDR-1);
+        ENTRY_Read(&lastEntry, currentDDR-1);
         if(lastEntry.date_ != entry.date_ || lastEntry.month_ != entry.month_){
           pullupCounter = 0;
         }
