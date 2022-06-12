@@ -41,7 +41,7 @@ void MX_ADC_Init(void);
 
 /* USER CODE BEGIN Prototypes */
 uint32_t ADC_MeasureDistance();
-float ADC_MeasureBattery();
+uint32_t ADC_MeasureBattery();
 /* USER CODE END Prototypes */
 
 #ifdef __cplusplus

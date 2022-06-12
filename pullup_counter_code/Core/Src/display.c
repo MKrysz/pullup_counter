@@ -23,11 +23,11 @@ void _writeDisplayPin(displayPin_t pin, uint8_t value)
     switch (pin)
     {
 
-    case b:
+    case a:
         HAL_GPIO_WritePin(dis_a_GPIO_Port, dis_a_Pin, value);
         break;
 
-    case a:
+    case b:
         HAL_GPIO_WritePin(dis_b_GPIO_Port, dis_b_Pin, value);
         break;
 
@@ -51,11 +51,11 @@ void _writeDisplayPin(displayPin_t pin, uint8_t value)
         HAL_GPIO_WritePin(dis_g_GPIO_Port, dis_g_Pin, value);
         break;
 
-    #if DISPLAY_DP_USED
     case dp:
-        HAL_GPIO_WritePin(dis_dp_GPIO_Port, dis_dp_Pin, value);
+        #if DISPLAY_DP_USED
+            HAL_GPIO_WritePin(dis_dp_GPIO_Port, dis_dp_Pin, value);
+        #endif
         break;
-    #endif
 
     case dis0:
         HAL_GPIO_WritePin(dis_sel_0_GPIO_Port, dis_sel_0_Pin, value);
@@ -73,7 +73,7 @@ void _writeDisplayPin(displayPin_t pin, uint8_t value)
 /**
     @brief decodes char to display code for displaying
     @param digit
-    @returns display code for particular character
+    @returns display code for particular character (abcdefg[dp])
 */
 uint8_t _decodeChar(char digit)
 {
@@ -81,84 +81,90 @@ uint8_t _decodeChar(char digit)
     {
     case '0':
         return 0xfc;
-        break;
     
     case '1':
     case '|':
         return 0x60;
-        break;
 
     case '2':
         return 0xda;
-        break;
     
     case '3':
         return 0xf2;
-        break;
     
     case '4':
         return 0x66;
-        break;
     
     case '5':
     case 'S':
     case 's':
         return 0xb6;
-        break;
     
     case '6':
         return 0xbe;
-        break;
     
     case '7':
         return 0xe0;
-        break;
     
     case '8':
         return 0xfe;
-        break;
     
     case '9':
         return 0xf6;
-        break;
     
     case 'a':
     case 'A':
         return 0xee;
-        break;
     
     case 'b':
     case 'B':
         return 0x3e;
-        break;
     
     case 'c':
     case 'C':
         return 0x9c;
-        break;
     
     case 'd':
     case 'D':
         return 0x7a;
-        break;
     
     case 'e':
     case 'E':
         return 0x9e;
-        break;
     
     case 'f':
     case 'F':
         return 0x8e;
-        break;
 
     case '-':
         return 0x02;
-        break;
 
     case '_':
         return 0x10;
-        break;
+
+    case 'r':
+    case 'R':
+        return 0x0A;
+
+    case 't':
+    case 'T':
+        return 0x1e;
+
+    case 'l':
+    case 'L':
+        return 0x1C;
+    
+    case 'o':
+    case 'O':
+        return 0x3A;
+
+    case 'y':
+    case 'Y':
+        return 0x76;
+
+    case 'w':
+    case 'W':
+        return 0x54;
 
     default:
     return 0;
@@ -297,8 +303,10 @@ void _MLX_set(uint8_t dis)
  */
 void Display_enable()
 {
-    HAL_TIM_Base_Start_IT(&DISPLAY_HTIM);
-    isDisplayON = true;
+    if(isDisplayON == false){
+        HAL_TIM_Base_Start_IT(&DISPLAY_HTIM);
+        isDisplayON = true;
+    }
 }
 
 /**
@@ -307,9 +315,12 @@ void Display_enable()
  */
 void Display_disable()
 {
-    _MLX_clear();
-    HAL_TIM_Base_Stop_IT(&DISPLAY_HTIM);
-    isDisplayON = false;
+    if(isDisplayON){
+        _MLX_clear();
+        _writeDisplayPort(0x00);
+        HAL_TIM_Base_Stop_IT(&DISPLAY_HTIM);
+        isDisplayON = false;
+    }
 }
 
 /**
@@ -327,13 +338,17 @@ void Display_setInt(unsigned int integer)
 
 /**
  * @brief blocking function used to show scrolling text on the display; stops scrolling after one rotation
- * 
+ * ! only works for 2 digits
  * @param msg pointer to a string
  * @param delayTime time in ms between between each scroll
  */
 void Display_ShowString(char *msg, uint32_t delayTime)
 {
-    for (size_t i = 1; msg[i] != '\0'; i++){
+    Display_setCharToDigit(0, ' ');
+    Display_setCharToDigit(1, msg[0]);
+    HAL_Delay(delayTime);
+
+    for(size_t i = 1; msg[i] != '\0'; i++){
         Display_setCharToDigit(0, msg[i-1]);
         Display_setCharToDigit(1, msg[i]);
         HAL_Delay(delayTime);

@@ -64,15 +64,8 @@ void MX_ADC_Init(void)
   }
   /** Configure for the selected ADC regular channel to be converted.
   */
-  sConfig.Channel = ADC_CHANNEL_0;
-  sConfig.Rank = ADC_RANK_CHANNEL_NUMBER;
-  if (HAL_ADC_ConfigChannel(&hadc, &sConfig) != HAL_OK)
-  {
-    Error_Handler();
-  }
-  /** Configure for the selected ADC regular channel to be converted.
-  */
   sConfig.Channel = ADC_CHANNEL_9;
+  sConfig.Rank = ADC_RANK_CHANNEL_NUMBER;
   if (HAL_ADC_ConfigChannel(&hadc, &sConfig) != HAL_OK)
   {
     Error_Handler();
@@ -151,24 +144,28 @@ void HAL_ADC_MspDeInit(ADC_HandleTypeDef* adcHandle)
  */
 uint32_t ADC_MeasureDistance()
 {
-
+  const float multiplier = 1.0;
+  HAL_GPIO_WritePin(DISTANCE_EN_GPIO_Port, DISTANCE_EN_Pin, 1);
+  HAL_Delay(1);
+  HAL_ADC_Start(&hadc);
 }
 
 //TODO change return unit to mV ant return type to uint32_t
 /**
  * @brief 
  * 
- * @return float battery voltage in V
+ * @return uint32_t battery voltage in V
  */
-float ADC_MeasureBattery()
+uint32_t ADC_MeasureBattery()
 {
-  //TODO: calculate multiplier
-  const float multiplier = 0.1F;
-  HAL_GPIO_WritePin(BAT_SENSE_EN_GPIO_Port, BAT_SENSE_EN_Pin, 1);
-  HAL_ADC_Start(&hadc);
-  HAL_ADC_PollForConversion(&hadc, HAL_MAX_DELAY);
-  uint16_t raw = HAL_ADC_GetValue(&hadc);
-  return (float)(raw) * multiplier;
+  // //TODO: calculate multiplier
+  // const float multiplier = 0.1F;
+  // HAL_GPIO_WritePin(BAT_SENSE_EN_GPIO_Port, BAT_SENSE_EN_Pin, 1);
+  // HAL_ADC_Start(&hadc);
+  // HAL_ADC_PollForConversion(&hadc, HAL_MAX_DELAY);
+  // uint16_t raw = HAL_ADC_GetValue(&hadc);
+  // return (float)(raw) * multiplier;
+  return 1000;
 }
 /* USER CODE END 1 */
 

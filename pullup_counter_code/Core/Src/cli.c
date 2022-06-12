@@ -20,6 +20,10 @@
 #define xstr(s) str(s)
 #define str(s) #s
 
+const char welcomeMsg[] = 
+    "Pull-up counter V02\n\r"
+    "Type help for list of commands\n\r";
+
 const char helpMsg[] = 
     "for specific help type help X, where X can be:\n\r"
     "'flash', 'eeprom', 'adc', 'rtc'\n\r";
@@ -100,24 +104,29 @@ void CLI_UserInterface()
 {
   const size_t bufferSize = 32;
   char instructionBuffer[bufferSize];
-  while(GPIO_GetUsbFlag()){
-    size_t i = 0;
 
-    // get instruction from user
-    while(i < bufferSize-1){
-      unsigned char temp;
-      HAL_UART_Receive(&huart2, &temp, 1, HAL_MAX_DELAY);
-      temp = tolower(temp);
-      instructionBuffer[i] = temp;
-      i++;
-      if(temp == '\0')
-        break;
+  printf(welcomeMsg);
+
+  while(GPIO_GetUsbFlag()){
+    
+    for (size_t i = 0; i < bufferSize; i++){
+        instructionBuffer[i] = 0;
     }
+
+    HAL_UART_Receive(&huart2, instructionBuffer, bufferSize, 1000);
+    if(instructionBuffer[0] == 0)
+        continue;
+    
+
+    printf("echo %s\n\r", instructionBuffer);
 
     // parse user input
     cli_args_t args;
     _CLI_ClearArgs(&args);
     _CLI_ReadArgs(&args, instructionBuffer);
+    printf("arg.str[0] = %s\n\r", args.str[0]);
+    printf("arg.str[1] = %s\n\r", args.str[1]);
+    printf("arg.integer = %lli\n\r", args.integer);
     
     if(strcmp(args.str[0], "help") == 0){
         if(strcmp(args.str[1], "adc") == 0){
