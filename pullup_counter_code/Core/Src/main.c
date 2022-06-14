@@ -57,8 +57,8 @@
 const uint32_t pullupTimeMin = 250;
 const uint32_t pullupTimeMax = 1000;
 //TODO measure proper distance threshold
-const uint16_t pullupDistThr = 255;
-const uint32_t timeTillShutdown = 2000;
+const uint16_t pullupDistThr = 1800;
+const uint32_t timeTillShutdown = 5000;
 
 extern volatile bool GPIO_StartFlag;
 /* USER CODE END PV */
@@ -112,8 +112,6 @@ int main(void)
 
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
-  
-
   while (1)
   {
     
@@ -147,7 +145,7 @@ int main(void)
       uint32_t timeDelta = pullupEnd - pullupStart;
       if(pullupTimeMin < timeDelta && timeDelta < pullupTimeMax){
         lastDetectedPullup = HAL_GetTick();
-        entry_t entry;
+        entry_t entry; 
         ENTRY_SetTimestamp(&entry);
         uint32_t currentDDR = EEPROM_ReadUINT32(EEPROM_VAR_LAST_DDR)+1;
         ENTRY_Write(&entry, currentDDR);
@@ -235,8 +233,9 @@ void SystemClock_Config(void)
 /* USER CODE BEGIN 4 */
 void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin)
 {
-  SystemClock_Config();
-  HAL_ResumeTick();
+  // SystemClock_Config();
+  // HAL_ResumeTick();
+  HAL_NVIC_SystemReset();
 }
 /* USER CODE END 4 */
 

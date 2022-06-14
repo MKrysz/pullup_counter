@@ -48,7 +48,7 @@ void MX_ADC_Init(void)
   hadc.Init.SamplingTime = ADC_SAMPLETIME_1CYCLE_5;
   hadc.Init.ScanConvMode = ADC_SCAN_DIRECTION_FORWARD;
   hadc.Init.DataAlign = ADC_DATAALIGN_RIGHT;
-  hadc.Init.ContinuousConvMode = DISABLE;
+  hadc.Init.ContinuousConvMode = ENABLE;
   hadc.Init.DiscontinuousConvMode = DISABLE;
   hadc.Init.ExternalTrigConvEdge = ADC_EXTERNALTRIGCONVEDGE_NONE;
   hadc.Init.ExternalTrigConv = ADC_SOFTWARE_START;
@@ -64,7 +64,7 @@ void MX_ADC_Init(void)
   }
   /** Configure for the selected ADC regular channel to be converted.
   */
-  sConfig.Channel = ADC_CHANNEL_9;
+  sConfig.Channel = ADC_CHANNEL_0;
   sConfig.Rank = ADC_RANK_CHANNEL_NUMBER;
   if (HAL_ADC_ConfigChannel(&hadc, &sConfig) != HAL_OK)
   {
@@ -140,17 +140,23 @@ void HAL_ADC_MspDeInit(ADC_HandleTypeDef* adcHandle)
 /**
  * @brief measures distance
  * 
- * @return uint32_t measured distance in mm
+ * @return uint32_t measured distance in 0.1mm
  */
 uint32_t ADC_MeasureDistance()
 {
-  const float multiplier = 1.0;
+  const float multiplier = 3300./4095;
+
   HAL_GPIO_WritePin(DISTANCE_EN_GPIO_Port, DISTANCE_EN_Pin, 1);
-  HAL_Delay(1);
+  HAL_Delay(10);
   HAL_ADC_Start(&hadc);
+  while(HAL_ADC_PollForConversion(&hadc, HAL_MAX_DELAY) != HAL_OK);
+  uint16_t raw = HAL_ADC_GetValue(&hadc);
+  HAL_GPIO_WritePin(DISTANCE_EN_GPIO_Port, DISTANCE_EN_Pin, 0);
+
+  // return (uint32_t) (raw);
+  return (uint32_t) ((float)raw*multiplier);
 }
 
-//TODO change return unit to mV ant return type to uint32_t
 /**
  * @brief 
  * 
@@ -165,7 +171,7 @@ uint32_t ADC_MeasureBattery()
   // HAL_ADC_PollForConversion(&hadc, HAL_MAX_DELAY);
   // uint16_t raw = HAL_ADC_GetValue(&hadc);
   // return (float)(raw) * multiplier;
-  return 1000;
+  return 3000;
 }
 /* USER CODE END 1 */
 

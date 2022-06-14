@@ -57,9 +57,9 @@ void MX_RTC_Init(void)
 
   /* USER CODE BEGIN Check_RTC_BKUP */
   // RTC time set
-  sTime.Hours = 0x0;
-  sTime.Minutes = 0x0;
-  sTime.Seconds = 0x0;
+  sTime.Hours = 0x15;
+  sTime.Minutes = 0x15;
+  sTime.Seconds = 0x15;
   sTime.DayLightSaving = RTC_DAYLIGHTSAVING_NONE;
   sTime.StoreOperation = RTC_STOREOPERATION_RESET;
   if (HAL_RTC_SetTime(&hrtc, &sTime, RTC_FORMAT_BCD) != HAL_OK)
@@ -68,8 +68,8 @@ void MX_RTC_Init(void)
   }
   sDate.WeekDay = RTC_WEEKDAY_MONDAY;
   sDate.Month = RTC_MONTH_JANUARY;
-  sDate.Date = 0x1;
-  sDate.Year = 0x0;
+  sDate.Date = 0x15;
+  sDate.Year = 022;
 
   if (HAL_RTC_SetDate(&hrtc, &sDate, RTC_FORMAT_BCD) != HAL_OK)
   {
@@ -137,6 +137,34 @@ void HAL_RTC_MspDeInit(RTC_HandleTypeDef* rtcHandle)
 }
 
 /* USER CODE BEGIN 1 */
+
+/**
+ * @brief converts HAL's weekday to a readable strings
+ * 
+ * @param weekday int from 1 to 7 where 1 is Monday and 7 is Saturday
+ * @param dst string with a size of at least 10 in witch return value will be written to
+ */
+void RTC_WeekDay2String(uint8_t weekday, char* dst)
+{
+  char truthTable[7][10] = {
+    "Monday",
+    "Tuesday",
+    "Wednesday",
+    "Thursday",
+    "Friday",
+    "Saturday",
+    "Sunday"
+  };
+
+  for (size_t i = 0; truthTable[weekday-1][i] != '\0'; i++){
+    dst[i] = truthTable[weekday-1][i];
+  }
+}
+
+/**
+ * @brief prints current time and date from RTC
+ * 
+ */
 void RTC_Print()
 {
   RTC_TimeTypeDef sTime;
@@ -145,11 +173,14 @@ void RTC_Print()
   HAL_RTC_GetTime(&hrtc, &sTime, FORMAT_BIN);
   HAL_RTC_GetDate(&hrtc, &sDate, FORMAT_BIN);
 
-  printf("%hhu:%hhu:%hhu\n\r", 
+  printf("%u:%u:%u\n", 
   sTime.Hours, sTime.Minutes, sTime.Seconds);
-  printf("%hhu/%hhu/20%hhu\n\r",
+  printf("%u/%u/20%u\n",
   sDate.Date, sDate.Month, sDate.Year);
-  printf("Weekday = %hhu\n\r", sDate.WeekDay);
+
+  char weekdayStr[10];
+  RTC_WeekDay2String(sDate.WeekDay, weekdayStr);
+  printf("Weekday = %s\n", weekdayStr);
 }
 /* USER CODE END 1 */
 

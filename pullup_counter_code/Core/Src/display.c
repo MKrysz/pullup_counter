@@ -72,7 +72,7 @@ void _writeDisplayPin(displayPin_t pin, uint8_t value)
 
 /**
     @brief decodes char to display code for displaying
-    @param digit
+    @param digit character to be decoded
     @returns display code for particular character (abcdefg[dp])
 */
 uint8_t _decodeChar(char digit)

@@ -24,5 +24,11 @@ void EEPROM_WriteUINT32(uint32_t ddr, uint32_t data)
  */
 uint32_t EEPROM_ReadUINT32(uint32_t ddr)
 {
-    return *((uint32_t *)ddr+EEPROM_BASE_ADDR);
+    uint32_t* temp = ddr+EEPROM_BASE_ADDR;
+    return *temp;
+}
+
+void EEPROM_Init()
+{
+    HAL_FLASHEx_DATAEEPROM_Unlock();
 }
