@@ -88,8 +88,10 @@ void Error_Handler(void);
 #define BAT_SENSE_EN_GPIO_Port GPIOA
 #define START_Pin GPIO_PIN_7
 #define START_GPIO_Port GPIOB
+#define START_EXTI_IRQn EXTI4_15_IRQn
 #define TouchPin_Pin GPIO_PIN_8
 #define TouchPin_GPIO_Port GPIOB
+#define TouchPin_EXTI_IRQn EXTI4_15_IRQn
 #define DISTANCE_EN_Pin GPIO_PIN_9
 #define DISTANCE_EN_GPIO_Port GPIOB
 /* USER CODE BEGIN Private defines */
