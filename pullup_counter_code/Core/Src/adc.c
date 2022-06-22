@@ -21,7 +21,7 @@
 #include "adc.h"
 
 /* USER CODE BEGIN 0 */
-
+uint32_t ambientDistance = 0;
 /* USER CODE END 0 */
 
 ADC_HandleTypeDef hadc;
@@ -137,24 +137,37 @@ void HAL_ADC_MspDeInit(ADC_HandleTypeDef* adcHandle)
 
 /* USER CODE BEGIN 1 */
 
+uint32_t _ADC_DistanceRaw()
+{
+  HAL_GPIO_WritePin(DISTANCE_EN_GPIO_Port, DISTANCE_EN_Pin, 1);
+  HAL_Delay(10);
+  HAL_ADC_Start(&hadc);
+  while(HAL_ADC_PollForConversion(&hadc, HAL_MAX_DELAY) != HAL_OK);
+  uint32_t raw = HAL_ADC_GetValue(&hadc);
+  HAL_GPIO_WritePin(DISTANCE_EN_GPIO_Port, DISTANCE_EN_Pin, 0);
+  return raw;
+}
+
 /**
  * @brief measures distance
  * 
  * @return uint32_t measured distance in 0.1mm
  */
-uint32_t ADC_MeasureDistance()
+int32_t ADC_MeasureDistance()
 {
-  const float multiplier = 3300./4095;
+  uint32_t raw = _ADC_DistanceRaw();
+  return (int32_t) (raw - ambientDistance);
+}
 
-  HAL_GPIO_WritePin(DISTANCE_EN_GPIO_Port, DISTANCE_EN_Pin, 1);
-  HAL_Delay(10);
-  HAL_ADC_Start(&hadc);
-  while(HAL_ADC_PollForConversion(&hadc, HAL_MAX_DELAY) != HAL_OK);
-  uint16_t raw = HAL_ADC_GetValue(&hadc);
-  HAL_GPIO_WritePin(DISTANCE_EN_GPIO_Port, DISTANCE_EN_Pin, 0);
-
-  // return (uint32_t) (raw);
-  return (uint32_t) ((float)raw*multiplier);
+void ADC_Distance_Calibrate()
+{
+  const size_t bufferSize = 10;
+  uint32_t result = 0;
+  for (size_t i = 0; i < bufferSize; i++){
+    result += _ADC_DistanceRaw();
+    HAL_Delay(50);
+  }
+  ambientDistance = result/bufferSize;
 }
 
 /**

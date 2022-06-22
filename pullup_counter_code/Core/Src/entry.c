@@ -52,8 +52,8 @@ void ENTRY_Print(entry_t* entry)
 {
     printf("Entry nr:%u\r\n", entry->id_);
     printf("Time of creation %u:%u\n", entry->hour_, entry->minutes_);
-    printf("Date of creation:\nmonth:%u\ndate:%u\nweekday:%u\r\n", entry->month_, entry->date_, entry->weekday_);
-    printf("UNUSED = %u\n\n\n", entry->UNUSED);
+    printf("Date of creation: %u/%u\nweekday:%u\r\n", entry->date_, entry->month_, entry->weekday_);
+    // printf("UNUSED = %u\n\n\n", entry->UNUSED);
 }
 
 

@@ -11,9 +11,10 @@
 #include "adc.h"
 #include "eeprom.h"
 #include "entry.h"
+#include "w25qxx.h"
 #include "rtc.h"
 
-#define CLI_DEBUG 1
+#define CLI_DEBUG 0
 
 // nr of strings in command
 #define NR_OF_STR 2
@@ -39,6 +40,7 @@ const char helpMsg[] =
 
 const char helpFlashMsg[] = 
     "flash read X - reads entry X written in flash\n"
+    "flash clear - clears the entire flash memory\n"
     "flash last - reads last written entry\n"
     "flash dump - reads all entries from flash in chronological order\n"
     "flash raw - reads all entries from flash in machine-friendly format:\n"
@@ -56,7 +58,8 @@ const char defaultMsg[] =
 
 const char helpAdcMsg[] = 
     "adc battery - reads voltage value of the battery\n"
-    "adc read X - reads distance value for X ms, type 0 to measure once\n";
+    "adc read X - reads distance value for X ms, type 0 to measure once\n"
+    "adc calibrate - calibrates ambient brightness of distance detector\n";
 
 const char helpRtcMsg[] = 
     "pass -1 for 'no changes\n'"
@@ -69,6 +72,7 @@ void flashRead(uint32_t ddr);
 void flashLast();
 void flashDump();
 void flashRaw();
+void flashClear();
 
 void eepromRead(uint32_t ddr);
 void eepromWrite(uint32_t ddr, uint32_t data);
@@ -197,6 +201,9 @@ void CLI_UserInterface()
         else if(strcmp(args.str[1], "read") == 0){
             adcRead(args.integer[0]);
         }
+        else if(strcmp(args.str[1], "calibrate") == 0){
+            ADC_Distance_Calibrate();
+        }
     }
     
     else if(strcmp(args.str[0], "rtc") == 0){
@@ -240,7 +247,7 @@ void flashLast()
 void flashDump()
 {
     uint32_t lastDdr = EEPROM_ReadUINT32(EEPROM_VAR_LAST_DDR);
-    for (uint32_t ddr = 0; ddr <= lastDdr; ddr++)
+    for (uint32_t ddr = 1; ddr <= lastDdr; ddr++)
     {
         flashRead(ddr);
     }
@@ -251,7 +258,7 @@ void flashRaw()
 {
     printf("Id\tHour\tMin\tMonth\tDate\tWeekday\n");
     uint32_t lastDdr = EEPROM_ReadUINT32(EEPROM_VAR_LAST_DDR);
-    for (uint32_t ddr = 0; ddr <= lastDdr; ddr++){
+    for (uint32_t ddr = 1; ddr <= lastDdr; ddr++){
         entry_t entry;
         ENTRY_Read(&entry, ddr);
         printf("%u\t%u\t%u\t%u\t%u\t%u\n", 
@@ -260,6 +267,10 @@ void flashRaw()
     }
 }
 
+void flashClear()
+{
+    W25qxx_EraseChip();
+}
 
 void eepromRead(uint32_t ddr)
 {
@@ -279,12 +290,13 @@ void adcBattery()
     printf("%lu mV\n", batVol);
 }
 
+extern uint32_t ambientDistance;
 void adcRead(uint32_t repeat){
     uint32_t start = HAL_GetTick();
     do{
-        uint32_t data = ADC_MeasureDistance();
+        int32_t data = ADC_MeasureDistance();
         // printf("%lu.%lu mm\n", data/10, (data%10));
-        printf("%lu\n", data);
+        printf("%li\n", data);
         //delay as to not flood terminal
         HAL_Delay(100);
     }

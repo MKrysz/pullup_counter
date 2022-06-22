@@ -35,6 +35,7 @@
 #include "eeprom.h"
 #include "cli.h"
 #include "entry.h"
+#include "w25qxx.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -44,6 +45,7 @@
 
 /* Private define ------------------------------------------------------------*/
 /* USER CODE BEGIN PD */
+#define STBY 0
 /* USER CODE END PD */
 
 /* Private macro -------------------------------------------------------------*/
@@ -56,8 +58,7 @@
 /* USER CODE BEGIN PV */
 const uint32_t pullupTimeMin = 250;
 const uint32_t pullupTimeMax = 1000;
-//TODO measure proper distance threshold
-const uint16_t pullupDistThr = 1800;
+
 const uint32_t timeTillShutdown = 5000;
 
 extern volatile bool GPIO_StartFlag;
@@ -66,6 +67,7 @@ extern volatile bool GPIO_StartFlag;
 /* Private function prototypes -----------------------------------------------*/
 void SystemClock_Config(void);
 /* USER CODE BEGIN PFP */
+void programmingRoutine();
 /* USER CODE END PFP */
 
 /* Private user code ---------------------------------------------------------*/
@@ -107,7 +109,8 @@ int main(void)
   MX_ADC_Init();
   MX_TIM6_Init();
   /* USER CODE BEGIN 2 */
-
+  W25qxx_Init();
+  // programmingRoutine();
   /* USER CODE END 2 */
 
   /* Infinite loop */
@@ -127,6 +130,7 @@ int main(void)
       }
       Display_disable();
     }
+    ADC_Distance_Calibrate();
 
     // user interface
     if(GPIO_GetUsbFlag())
@@ -139,14 +143,20 @@ int main(void)
     Display_enable();
     Display_setInt(pullupCounter);
     while(HAL_GetTick()-lastDetectedPullup < timeTillShutdown){
+    // while(1){
       uint32_t pullupStart = HAL_GetTick();
-      while(ADC_MeasureDistance()<pullupDistThr);
+      while(ADC_MeasureDistance() < -250);
       uint32_t pullupEnd = HAL_GetTick();
       uint32_t timeDelta = pullupEnd - pullupStart;
+      // if(timeDelta > 50)
+      //   printf("time delta = %lu\n", timeDelta);
       if(pullupTimeMin < timeDelta && timeDelta < pullupTimeMax){
         lastDetectedPullup = HAL_GetTick();
         entry_t entry; 
         ENTRY_SetTimestamp(&entry);
+        uint32_t id = EEPROM_ReadUINT32(EEPROM_VAR_NEXT_ID);
+        entry.id_ = (uint16_t)id;
+        EEPROM_WriteUINT32(EEPROM_VAR_NEXT_ID, ++id);
         uint32_t currentDDR = EEPROM_ReadUINT32(EEPROM_VAR_LAST_DDR)+1;
         ENTRY_Write(&entry, currentDDR);
         entry_t tempEntry;
@@ -236,6 +246,34 @@ void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin)
   // SystemClock_Config();
   // HAL_ResumeTick();
   HAL_NVIC_SystemReset();
+}
+
+void programmingRoutine()
+{
+  // RTC time&date setting
+  {
+    RTC_DateTypeDef sDate;
+    sDate.Date = 22;
+    sDate.Month = 6;
+    sDate.Year = 22;
+    sDate.WeekDay = RTC_WEEKDAY_WEDNESDAY;
+    HAL_RTC_SetDate(&hrtc, &sDate, FORMAT_BIN);
+
+    RTC_TimeTypeDef sTime;
+    sTime.Hours = 22;
+    sTime.Minutes = 29;
+    sTime.Seconds = 0;
+    HAL_RTC_SetTime(&hrtc, &sTime, FORMAT_BIN);
+  }
+
+  //erase the entire flash memory
+  W25qxx_EraseChip();
+
+  //erase the entire eeprom 
+  EEPROM_WriteUINT32(EEPROM_VAR_LAST_DDR, 0);
+  EEPROM_WriteUINT32(EEPROM_VAR_PULLUP_COUNTER, 0);
+  EEPROM_WriteUINT32(EEPROM_VAR_NEXT_ID, 0);
+
 }
 /* USER CODE END 4 */
 

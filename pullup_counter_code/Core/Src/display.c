@@ -166,9 +166,12 @@ uint8_t _decodeChar(char digit)
     case 'W':
         return 0x54;
 
+    case 'h':
+    case 'H':
+        return 0x6C;
+
     default:
-    return 0;
-        break;
+        return 0;
     }
 }
 

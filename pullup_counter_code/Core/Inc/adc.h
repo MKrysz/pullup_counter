@@ -40,8 +40,9 @@ extern ADC_HandleTypeDef hadc;
 void MX_ADC_Init(void);
 
 /* USER CODE BEGIN Prototypes */
-uint32_t ADC_MeasureDistance();
+int32_t ADC_MeasureDistance();
 uint32_t ADC_MeasureBattery();
+void ADC_Distance_Calibrate();
 /* USER CODE END Prototypes */
 
 #ifdef __cplusplus

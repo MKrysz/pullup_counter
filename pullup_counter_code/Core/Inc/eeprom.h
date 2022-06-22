@@ -6,6 +6,7 @@
 
 #define EEPROM_VAR_LAST_DDR 0
 #define EEPROM_VAR_PULLUP_COUNTER 4
+#define EEPROM_VAR_NEXT_ID 8
 
 void EEPROM_WriteUINT32(uint32_t ddr, uint32_t data);
 uint32_t EEPROM_ReadUINT32(uint32_t ddr);
