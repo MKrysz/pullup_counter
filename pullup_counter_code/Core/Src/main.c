@@ -36,6 +36,7 @@
 #include "cli.h"
 #include "entry.h"
 #include "w25qxx.h"
+#include "settings.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -56,10 +57,7 @@
 /* Private variables ---------------------------------------------------------*/
 
 /* USER CODE BEGIN PV */
-const uint32_t pullupTimeMin = 250;
-const uint32_t pullupTimeMax = 1000;
-
-const uint32_t timeTillShutdown = 5000;
+settings_t settings = {0};
 
 extern volatile bool GPIO_StartFlag;
 /* USER CODE END PV */
@@ -115,13 +113,14 @@ int main(void)
 
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
+  Settings_Read(settings);
   while (1)
   {
     
     // Check battery voltage
     // if low voltage detected inform user via 7-seg display
     // //TODO Display time parameters
-    if(ADC_MeasureBattery() < 2650){
+    if(ADC_MeasureBattery() < settings.batteryVoltageThreshold){
       Display_enable();
       for (size_t i = 0; i < 3; i++)
       {
@@ -142,15 +141,13 @@ int main(void)
     uint32_t pullupCounter = EEPROM_ReadUINT32(EEPROM_VAR_PULLUP_COUNTER);
     Display_enable();
     Display_setInt(pullupCounter);
-    while(HAL_GetTick()-lastDetectedPullup < timeTillShutdown){
+    while(HAL_GetTick()-lastDetectedPullup < settings.timeTillShutdown){
     // while(1){
       uint32_t pullupStart = HAL_GetTick();
-      while(ADC_MeasureDistance() < -250);
+      while(ADC_MeasureDistance() < settings.distanceThreshold);
       uint32_t pullupEnd = HAL_GetTick();
-      uint32_t timeDelta = pullupEnd - pullupStart;
-      // if(timeDelta > 50)
-      //   printf("time delta = %lu\n", timeDelta);
-      if(pullupTimeMin < timeDelta && timeDelta < pullupTimeMax){
+      uint32_t timeDelta = pullupEnd - pullupStart; 
+      if(settings.pullupTimeMin < timeDelta && timeDelta < settings.pullupTimeMax){
         lastDetectedPullup = HAL_GetTick();
         entry_t entry; 
         ENTRY_SetTimestamp(&entry);
@@ -250,29 +247,35 @@ void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin)
 
 void programmingRoutine()
 {
-  // RTC time&date setting
-  {
-    RTC_DateTypeDef sDate;
-    sDate.Date = 22;
-    sDate.Month = 6;
-    sDate.Year = 22;
-    sDate.WeekDay = RTC_WEEKDAY_WEDNESDAY;
-    HAL_RTC_SetDate(&hrtc, &sDate, FORMAT_BIN);
+  // // RTC time&date setting
+  // {
+  //   RTC_DateTypeDef sDate;
+  //   sDate.Date = 23;
+  //   sDate.Month = 6;
+  //   sDate.Year = 22;
+  //   sDate.WeekDay = RTC_WEEKDAY_WEDNESDAY;
+  //   HAL_RTC_SetDate(&hrtc, &sDate, FORMAT_BIN);
 
-    RTC_TimeTypeDef sTime;
-    sTime.Hours = 22;
-    sTime.Minutes = 29;
-    sTime.Seconds = 0;
-    HAL_RTC_SetTime(&hrtc, &sTime, FORMAT_BIN);
-  }
+  //   RTC_TimeTypeDef sTime;
+  //   sTime.Hours = 21;
+  //   sTime.Minutes = 22;
+  //   sTime.Seconds = 0;
+  //   HAL_RTC_SetTime(&hrtc, &sTime, FORMAT_BIN);
+  // }
 
-  //erase the entire flash memory
-  W25qxx_EraseChip();
+  // // erase the entire flash memory
+  // W25qxx_EraseChip();
 
-  //erase the entire eeprom 
-  EEPROM_WriteUINT32(EEPROM_VAR_LAST_DDR, 0);
-  EEPROM_WriteUINT32(EEPROM_VAR_PULLUP_COUNTER, 0);
-  EEPROM_WriteUINT32(EEPROM_VAR_NEXT_ID, 0);
+  // // erase the entire eeprom 
+  // EEPROM_Erase();
+
+  // set the default settings
+  settings.distanceThreshold = -250;
+  settings.pullupTimeMax = 2000;
+  settings.pullupTimeMin = 300;
+  settings.timeTillShutdown = 7000;
+  settings.batteryVoltageThreshold = 2650;
+  Settings_Save(settings);
 
 }
 /* USER CODE END 4 */

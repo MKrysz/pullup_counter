@@ -100,7 +100,8 @@ void MX_GPIO_Init(void)
 
 /* USER CODE BEGIN 2 */
 
-bool GPIO_GetUsbFlag()
+bool 
+GPIO_GetUsbFlag()
 {
   return (bool) HAL_GPIO_ReadPin(USB_FLAG_GPIO_Port, USB_FLAG_Pin);
 }

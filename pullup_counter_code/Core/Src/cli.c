@@ -13,13 +13,14 @@
 #include "entry.h"
 #include "w25qxx.h"
 #include "rtc.h"
+#include "settings.h"
 
 #define CLI_DEBUG 0
 
 // nr of strings in command
 #define NR_OF_STR 2
 // strings size
-#define STR_SIZE 16
+#define STR_SIZE 32
 //nr of int arguments in command
 #define NR_OF_INT 2
 
@@ -36,7 +37,7 @@ const char welcomeMsg[] =
 
 const char helpMsg[] = 
     "for specific help type help X, where X can be:\n"
-    "'flash', 'eeprom', 'adc', 'rtc', 'display'\n";
+    "'flash', 'eeprom', 'adc', 'rtc', 'display', 'settings'\n";
 
 const char helpFlashMsg[] = 
     "flash read X - reads entry X written in flash\n"
@@ -62,11 +63,22 @@ const char helpAdcMsg[] =
     "adc calibrate - calibrates ambient brightness of distance detector\n";
 
 const char helpRtcMsg[] = 
-    "pass -1 for 'no changes\n'"
+    "pass -1 for \"no changes\"\n"
     "rtc read - reads value from the RTC\n"
     "rtc date X Y - writes X day of the Y month to the RTC\n"
     "rtc time X Y - writes X hour Y min to the RTC\n"
-    "rtc weekday X - writes X weekday, where Monday is 1 and Sunday is 7, to the RTC\n";
+    "rtc weekday X - writes X weekday, where Monday is 1 and Sunday is 7, to the RTC\n"
+    "rtc year X - writes X year to the rtc (0 is 2000, 1 is 2001 and so on)\n";
+
+const char helpSettingsMsg[] = 
+    "settings shutdownTime X - sets shutdown time to X\n"
+    "settings pullupTimeMax - sets maximum time of the pullup to be detected\n"
+    "setting pullupTimeMin - sets minimum time of the pullup to be detected\n"
+    "settings distanceThreshold - sets threshold of the distance sensor\n"
+    "settings batteryVoltageThreshold - sets low voltage warning threshold\n"
+    "settings read - prints current settings\n";
+
+extern settings_t settings;
 
 void flashRead(uint32_t ddr);
 void flashLast();
@@ -84,6 +96,7 @@ void rtcRead();
 void rtcDate(int32_t date, int32_t month);
 void rtcTime(int32_t hour, int32_t minutes);
 void rtcWeekday(int32_t weekday);
+void rtcYear(int year);
 
 
 
@@ -167,6 +180,9 @@ void CLI_UserInterface()
         else if(strcmp(args.str[1], "eeprom") == 0){
             printf(helpEepromMsg);
         }
+        else if(strcmp(args.str[1], "settings") == 0){
+            printf(helpSettingsMsg);
+        }
         
         else{
             printf(helpMsg);
@@ -184,6 +200,9 @@ void CLI_UserInterface()
         }
         else if(strcmp(args.str[1], "raw") == 0){
             flashRaw();
+        }
+        else if(strcmp(args.str[1], "clear") == 0){
+            flashClear();
         }
     }
     else if(strcmp(args.str[0], "eeprom") == 0){
@@ -219,6 +238,34 @@ void CLI_UserInterface()
         else if(strcmp(args.str[1], "weekday") == 0){
             rtcWeekday(args.integer[0]);
         }
+        else if(strcmp(args.str[1], "year") == 0){
+            rtcYear(args.integer[0]);
+        }
+    }
+    else if(strcmp(args.str[0], "settings") == 0){
+        if(strcmp(args.str[1], "shutdownTime") == 0){
+            settings.timeTillShutdown = args.integer[0];
+            Settings_Save(settings);
+        }
+        else if(strcmp(args.str[1], "pullupTimeMax") == 0){
+            settings.pullupTimeMax = args.integer[0];
+            Settings_Save(settings);
+        }
+        else if(strcmp(args.str[1], "pullupTimeMin") == 0){
+            settings.pullupTimeMin = args.integer[0];
+            Settings_Save(settings);
+        }
+        else if(strcmp(args.str[1], "distanceThreshold") == 0){
+            settings.distanceThreshold = args.integer[0];
+            Settings_Save(settings);
+        }
+        else if(strcmp(args.str[1], "batteryVoltageThreshold") == 0){
+            settings.batteryVoltageThreshold = args.integer[0];
+            Settings_Save(settings);
+        }
+        else if(strcmp(args.str[1], "read") == 0){
+            Settings_Print(&settings);
+        }
     }
     //if didn't detect correct command
     else{
@@ -227,7 +274,6 @@ void CLI_UserInterface()
     printf("OK\n");
   }
 }
-
 
 
 void flashRead(uint32_t ddr)
@@ -269,7 +315,9 @@ void flashRaw()
 
 void flashClear()
 {
+    printf("Erasing started...\n");
     W25qxx_EraseChip();
+    printf("Erasing completed\n");
 }
 
 void eepromRead(uint32_t ddr)
@@ -323,6 +371,22 @@ void rtcDate(int32_t date, int32_t month)
 
     HAL_RTC_SetTime(&hrtc, &sTime, FORMAT_BIN);
     HAL_RTC_SetDate(&hrtc, &sDate, FORMAT_BIN);
+}
+
+void rtcYear(int year)
+{
+    RTC_TimeTypeDef sTime;
+    RTC_DateTypeDef sDate;
+
+    HAL_RTC_GetTime(&hrtc, &sTime, FORMAT_BIN);
+    HAL_RTC_GetDate(&hrtc, &sDate, FORMAT_BIN);
+
+    if(year >= 0)
+        sDate.Year = year;
+
+    HAL_RTC_SetTime(&hrtc, &sTime, FORMAT_BIN);
+    HAL_RTC_SetDate(&hrtc, &sDate, FORMAT_BIN);
+
 }
 
 void rtcTime(int32_t hour, int32_t minutes)

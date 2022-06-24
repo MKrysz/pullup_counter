@@ -142,11 +142,11 @@ void HAL_RTC_MspDeInit(RTC_HandleTypeDef* rtcHandle)
  * @brief converts HAL's weekday to a readable strings
  * 
  * @param weekday int from 1 to 7 where 1 is Monday and 7 is Saturday
- * @param dst string with a size of at least 10 in witch return value will be written to
+ * @param dst string with a size of at least 12 in witch return value will be written to
  */
 void RTC_WeekDay2String(uint8_t weekday, char* dst)
 {
-  char truthTable[7][10] = {
+  char truthTable[7][12] = {
     "Monday",
     "Tuesday",
     "Wednesday",
@@ -178,7 +178,7 @@ void RTC_Print()
   printf("%u/%u/20%u\n",
   sDate.Date, sDate.Month, sDate.Year);
 
-  char weekdayStr[10];
+  char weekdayStr[12];
   RTC_WeekDay2String(sDate.WeekDay, weekdayStr);
   printf("Weekday = %s\n", weekdayStr);
 }

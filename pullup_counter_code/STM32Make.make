@@ -44,6 +44,7 @@ Core/Src/entry.c \
 Core/Src/gpio.c \
 Core/Src/main.c \
 Core/Src/rtc.c \
+Core/Src/settings.c \
 Core/Src/spi.c \
 Core/Src/stm32l0xx_hal_msp.c \
 Core/Src/stm32l0xx_it.c \
