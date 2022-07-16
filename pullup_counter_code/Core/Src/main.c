@@ -142,7 +142,6 @@ int main(void)
     Display_enable();
     Display_setInt(pullupCounter);
     while(HAL_GetTick()-lastDetectedPullup < settings.timeTillShutdown){
-    // while(1){
       uint32_t pullupStart = HAL_GetTick();
       while(ADC_MeasureDistance() < settings.distanceThreshold);
       uint32_t pullupEnd = HAL_GetTick();

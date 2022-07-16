@@ -32,7 +32,9 @@
 #define str(s) #s
 
 const char welcomeMsg[] = 
-    "Pull-up counter V02\n"
+    "/******************** Pull-up counter V02 *********************\\\n"
+    "/********************      By MKrysz      *********************\\\n"
+    "\n"
     "Type help for list of commands\n";
 
 const char helpMsg[] = 

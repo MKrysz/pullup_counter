@@ -151,7 +151,7 @@ uint32_t _ADC_DistanceRaw()
 /**
  * @brief measures distance
  * 
- * @return uint32_t measured distance in 0.1mm
+ * @return uint32_t measured distance
  */
 int32_t ADC_MeasureDistance()
 {
@@ -165,7 +165,6 @@ void ADC_Distance_Calibrate()
   uint32_t result = 0;
   for (size_t i = 0; i < bufferSize; i++){
     result += _ADC_DistanceRaw();
-    HAL_Delay(50);
   }
   ambientDistance = result/bufferSize;
 }
@@ -177,6 +176,7 @@ void ADC_Distance_Calibrate()
  */
 uint32_t ADC_MeasureBattery()
 {
+  // TODO implement multichannel ADC measurements 
   // //TODO: calculate multiplier
   // const float multiplier = 0.1F;
   // HAL_GPIO_WritePin(BAT_SENSE_EN_GPIO_Port, BAT_SENSE_EN_Pin, 1);
