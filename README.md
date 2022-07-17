@@ -29,6 +29,8 @@ PCBs were manufactured by JLCPCB, and are shown below:
 ![Front](pullup_counter_readme/BoardFront.jpg)
 ![Back](pullup_counter_readme/BoardBack.jpg)
 
+During soldering I found out that I'm out of SMD proximity sensors so I glued a THT one instead. Also, by accident, I soldered PNP transistors instead of NPN. After replacing the transistors I had to connect them to different pins of the MCU as the original ones were blown up.
+
 After assembling and mounting it on the pullup bar:
 
 ![FrontMounted](pullup_counter_readme/MountedFront.jpg)
@@ -37,6 +39,8 @@ After assembling and mounting it on the pullup bar:
 ### Mounting
 
 Mounting is done using 3D-printed mounting system and four pairs of M3 bolts and nuts.
+
+![FrontMounted](pullup_counter_readme/mountingSystem.jpg)
 
 ## Software
 
