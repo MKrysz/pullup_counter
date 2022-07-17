@@ -73,7 +73,7 @@ Because each entry's size is 8B and my flash memory is 512kB the maximum amount 
 
 ### USB User Interface
 
-User interface allows the user for easy change of important parameters, debugging and downloading and  clearing data from device's flash memory. To put device in interface mode, plug it in your computer and restart it. The welcome message should appear. After that you can type 'help' for a list of availabole commands with short description.
+User interface allows the user for easy change of important parameters, debugging and downloading and  clearing data from device's flash memory. To put device in interface mode, plug it in your computer and restart it. The welcome message should appear. After that you can type 'help' for a list of available commands with short description.
 
 ![User Interface](pullup_counter_readme/UserInterface0.png)
 
