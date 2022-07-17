@@ -9,7 +9,7 @@ The main purpose of the project was to automatically count and save the amount o
 
 ### PCB
 
-![User Interface](pullup_counter_readme\schematic.svg)
+![Schematic](pullup_counter_readme/schematic.svg)
 
 Schematic and PCB was made in KiCad.
 
