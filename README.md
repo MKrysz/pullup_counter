@@ -13,9 +13,9 @@ The main purpose of the project was to automatically count and save the amount o
 
 Schematic and PCB was made in KiCad.
 
-For the power supply I decided that 2 AAA batteries would be the best choice, as they're easily available and have good volumetric energy density. Embedding the Li-Po battery was of the table, because the project is stationary and charging wouldn't be possible. 
+For the power supply I decided that 2 AAA batteries would be the best choice, as they're easily available and have good volumetric energy density. Embedding the Li-Po battery was out of the table, because the project is stationary and charging wouldn't be possible. 
 
-For the brain of the device i went with STM32L0 series microcontroller because of following reasons:
+As the brain of the device I went with STM32L0 series microcontroller because of following reasons:
 
 - low power consumption and low operating voltage, which is mandatory in battery operated systems like this
 - my familiarity with developing both harware and software with this series
