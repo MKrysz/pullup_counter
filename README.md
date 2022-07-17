@@ -3,11 +3,40 @@
 
 ## About
 
-The main purpose of the project was to automatically count and save the amount of pullups I make. So I developed a small device that goes into the pullup bar saves every pullup, shows how many pullups were done that day and has an USB interface for accessing the data and changing parameters of the device.
+The main purpose of the project was to automatically count and save the amount of pullups I make. I developed a small device mounted onto the pullup bar that saves every pullup, shows how many pullups were done that day and has an USB interface for accessing the data and changing parameters of the device.
 
 ## Hardware
-<img src="pullup_counter_readme\schematic.svg">
-For the power supply I decided that 2 AAA batteries would be the best choice, as they're easily available and have good volumetric energy density. Embedding the Li-Po battery was of the table, because the project is stationary and charging wouldn't be possible. I choose a STM32L051C8 microcontroller as the brain of the device, for its low power consumption, and low operating voltage, which is mandatory in battery operated systems like this. The MCU has a backup battery used for maintaining operation of RTC clock while main batteries are discharged or being replaced. For display I used 7 segment display as they're cheap, small and easy to drive. For a memory in which I would store my database i used a 512kB SPI Flash - P25Q40H. For the commication with the device I went with USB serial port, so I included USB port and USB-UART converter. I also included a capacitive touch pad and little sensor IC. For detecting pullups I used proximity sesor consisting of IR Led diode and photodiode.
+
+### PCB
+
+![User Interface](pullup_counter_readme\schematic.svg)
+
+Schematic and PCB was made in KiCad.
+
+For the power supply I decided that 2 AAA batteries would be the best choice, as they're easily available and have good volumetric energy density. Embedding the Li-Po battery was of the table, because the project is stationary and charging wouldn't be possible. 
+
+For the brain of the device i went with STM32L0 seriesmicrocontroller because of following reasons:
+
+- low power consumption and low operating voltage, which is mandatory in battery operated systems like this
+- my familiarity with developing both harware and software with this series
+- affordable price.
+
+I chose a STM32L051C8 as I had few of them lying around.
+
+The MCU has a backup battery used for maintaining operation of RTC clock while main batteries are discharged or being replaced. For display I used 7 segment display as they're cheap, small and easy to drive. They're also perfect for displaying numbers which is all they're used here for. For a memory in which I would store my database i used a 512kB SPI Flash - P25Q40H. For the communication with the device I went with USB serial port, so I included an USB port and USB-UART converter. I also included a capacitive touch pad and little sensor IC. For detecting pullups I used proximity sesor consisting of IR Led diode and photodiode.
+
+PCBs were manufactured by JLCPCB, and are shown below:
+![Front](pullup_counter_readme/BoardFront.jpg)
+![Back](pullup_counter_readme/BoardBack.jpg)
+
+After assembling and mounting it on the pullup bar:
+
+![FrontMounted](pullup_counter_readme/MountedFront.jpg)
+![FrontMounted](pullup_counter_readme/MountedBack.jpg)
+
+### Mounting
+
+Mounting is done using 3D-printed mounting system and four pairs of M3 bolts and nuts.
 
 ## Software
 
@@ -40,11 +69,11 @@ Because each entry's size is 8B and my flash memory is 512kB the maximum amount 
 
 ### USB User Interface
 
-![User Interface](pullup_counter_readme/UserInterface0.png)
+User interface allows the user for easy change of important parameters, debugging and downloading and  clearing data from device's flash memory. To put device in interface mode, plug it in your computer and restart it. The welcome message should appear. After that you can type 'help' for a list of availabole commands with short description.
 
-User interface allows the user for easy change of important parameters, debugging and downloading and  clearing data from device's flash memory.
+![User Interface](pullup_counter_readme/UserInterface0.png)
 
 ### Data analysys
 
-Python script that reads and interprets data acquired from the device.
+Python script that reads and interprets data acquired from the device. Below are shown examples of generated plots:
 ![Plot](pullup_counter_readme/PullupDistributionDuringDay.png)
