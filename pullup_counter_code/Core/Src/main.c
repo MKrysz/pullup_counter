@@ -66,6 +66,8 @@ extern volatile bool GPIO_StartFlag;
 void SystemClock_Config(void);
 /* USER CODE BEGIN PFP */
 void programmingRoutine();
+bool isTheNextDay(uint8_t day, uint8_t month, uint8_t nextDay, uint8_t nextDaysMonth);
+uint32_t measurePullupTime();
 /* USER CODE END PFP */
 
 /* Private user code ---------------------------------------------------------*/
@@ -114,74 +116,64 @@ int main(void)
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
   Settings_Read(settings);
-  while (1)
-  {
-    
-    // Check battery voltage
-    // if low voltage detected inform user via 7-seg display
-    // //TODO Display time parameters
-    if(ADC_MeasureBattery() < settings.batteryVoltageThreshold){
-      Display_enable();
-      for (size_t i = 0; i < 3; i++)
-      {
-        Display_ShowString("LOW BATTERY", 300);
-        HAL_Delay(1000);
-      }
-      Display_disable();
-    }
-    ADC_Distance_Calibrate();
-
-    // user interface
-    if(GPIO_GetUsbFlag())
-      CLI_UserInterface();
-
-
-    //detecting, saving and showing pullups
-    uint32_t lastDetectedPullup = HAL_GetTick();
-    uint32_t pullupCounter = EEPROM_ReadUINT32(EEPROM_VAR_PULLUP_COUNTER);
+  // Check battery voltage
+  // if low voltage detected inform user via 7-seg display
+  if(ADC_MeasureBattery() < settings.batteryVoltageThreshold){
     Display_enable();
-    Display_setInt(pullupCounter);
-    while(HAL_GetTick()-lastDetectedPullup < settings.timeTillShutdown){
-      uint32_t pullupStart = HAL_GetTick();
-      while(ADC_MeasureDistance() < settings.distanceThreshold);
-      uint32_t pullupEnd = HAL_GetTick();
-      uint32_t timeDelta = pullupEnd - pullupStart; 
-      if(settings.pullupTimeMin < timeDelta && timeDelta < settings.pullupTimeMax){
-        lastDetectedPullup = HAL_GetTick();
-        entry_t entry; 
-        ENTRY_SetTimestamp(&entry);
-        uint32_t id = EEPROM_ReadUINT32(EEPROM_VAR_NEXT_ID);
-        entry.id_ = (uint16_t)id;
-        EEPROM_WriteUINT32(EEPROM_VAR_NEXT_ID, ++id);
-        uint32_t currentDDR = EEPROM_ReadUINT32(EEPROM_VAR_LAST_DDR)+1;
-        ENTRY_Write(&entry, currentDDR);
-        entry_t tempEntry;
-        ENTRY_Read(&tempEntry, currentDDR);
-        if(!ENTRY_IsEqual(&entry, &tempEntry)){
-          while(1){
-            Display_ShowString("FLASH ERROR", 250);
-            HAL_Delay(1000);
-          }
+    for (size_t i = 0; i < 3; i++)
+    {
+      Display_ShowString("LOW BATTERY", 250);
+      HAL_Delay(1000);
+    }
+    Display_disable();
+  }
+  ADC_Distance_Calibrate();
+
+  // user interface
+  if(GPIO_GetUsbFlag())
+    CLI_UserInterface();
+
+
+  //detecting, saving and showing pullups
+  uint32_t lastDetectedPullup = HAL_GetTick();
+  uint32_t pullupCounter = EEPROM_ReadUINT32(EEPROM_VAR_PULLUP_COUNTER);
+  Display_enable();
+  Display_setInt(pullupCounter);
+  while(HAL_GetTick()-lastDetectedPullup < settings.timeTillShutdown){
+    uint32_t timeDelta = measurePullupTime(); 
+    if(settings.pullupTimeMin < timeDelta && timeDelta < settings.pullupTimeMax){
+      lastDetectedPullup = HAL_GetTick();
+      entry_t entry; 
+      ENTRY_SetTimestamp(&entry);
+      uint32_t id = EEPROM_ReadUINT32(EEPROM_VAR_NEXT_ID);
+      entry.id_ = (uint16_t)id;
+      EEPROM_WriteUINT32(EEPROM_VAR_NEXT_ID, ++id);
+      if(!ENTRY_WriteWithCheck(&entry)){
+        while(1){
+          Display_ShowString("FLASH ERROR", 250);
+          HAL_Delay(1000);
         }
-        EEPROM_WriteUINT32(EEPROM_VAR_LAST_DDR, currentDDR);
-        pullupCounter = EEPROM_ReadUINT32(EEPROM_VAR_PULLUP_COUNTER);
-        entry_t lastEntry;
-        ENTRY_Read(&lastEntry, currentDDR-1);
-        if(lastEntry.date_ != entry.date_ || lastEntry.month_ != entry.month_){
+      }
+      pullupCounter = EEPROM_ReadUINT32(EEPROM_VAR_PULLUP_COUNTER);
+      entry_t lastEntry;
+      ENTRY_Read(&lastEntry, EEPROM_ReadUINT32(EEPROM_VAR_LAST_DDR)-1);
+      if(lastEntry.date_ != entry.date_ || lastEntry.month_ != entry.month_ || lastEntry.year_ != entry.year_){
+        if( !isTheNextDay(lastEntry.date_, lastEntry.month_, entry.date_, entry.month_) || entry.hour_ >= settings.startOfNextDay ){
           pullupCounter = 0;
         }
-        pullupCounter++;
-        EEPROM_WriteUINT32(EEPROM_VAR_PULLUP_COUNTER, pullupCounter);
-        Display_setInt(pullupCounter);
       }
+      pullupCounter++;
+      EEPROM_WriteUINT32(EEPROM_VAR_PULLUP_COUNTER, pullupCounter);
+      Display_setInt(pullupCounter);
     }
-
-    //shutdown routine
-    //going into STOP mode with RTC
-    Display_disable();
-    HAL_SuspendTick();
-    HAL_PWR_EnterSTOPMode(PWR_LOWPOWERREGULATOR_ON, PWR_STOPENTRY_WFI);
-
+  }
+  //shutdown routine
+  //going into STOP mode with RTC
+  Display_disable();
+  HAL_SuspendTick();
+  HAL_PWR_EnterSTOPMode(PWR_LOWPOWERREGULATOR_ON, PWR_STOPENTRY_WFI);
+  while (1)
+  {
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
@@ -276,6 +268,25 @@ void programmingRoutine()
   settings.batteryVoltageThreshold = 2650;
   Settings_Save(settings);
 
+}
+
+bool isTheNextDay(uint8_t day, uint8_t month, uint8_t nextDay, uint8_t nextDaysMonth)
+{
+    uint8_t lenOfMonths[] = {31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31};
+    if(month == nextDaysMonth && nextDay == day+1)
+        return true;
+    else if(nextDaysMonth == month+1 && nextDay == 1 && day == lenOfMonths[month-1])
+        return true;
+    return false;
+}
+
+uint32_t measurePullupTime()
+{
+  uint32_t pullupStart = HAL_GetTick();
+  while(ADC_MeasureDistance() < settings.distanceThreshold);
+  uint32_t pullupEnd = HAL_GetTick();
+  uint32_t timeDelta = pullupEnd - pullupStart;
+  return timeDelta;
 }
 /* USER CODE END 4 */
 

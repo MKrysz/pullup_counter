@@ -32,5 +32,6 @@ def plotCalendar(data):
     print(temp)
 
 
-# plotDayDistribution(data)
-plotCalendar(data)
+plotDayDistribution(data)
+# plotCalendar(data)
+

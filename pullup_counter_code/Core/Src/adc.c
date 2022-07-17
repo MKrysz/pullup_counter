@@ -137,6 +137,11 @@ void HAL_ADC_MspDeInit(ADC_HandleTypeDef* adcHandle)
 
 /* USER CODE BEGIN 1 */
 
+/**
+ * @brief returns raw abolute reading from proximity sensor
+ * 
+ * @return uint32_t 
+ */
 uint32_t _ADC_DistanceRaw()
 {
   HAL_GPIO_WritePin(DISTANCE_EN_GPIO_Port, DISTANCE_EN_Pin, 1);
@@ -149,9 +154,9 @@ uint32_t _ADC_DistanceRaw()
 }
 
 /**
- * @brief measures distance
+ * @brief returns relative reading from proximity sensor
  * 
- * @return uint32_t measured distance
+ * @return uint32_t differnce between ambient and current voltage
  */
 int32_t ADC_MeasureDistance()
 {
@@ -159,6 +164,10 @@ int32_t ADC_MeasureDistance()
   return (int32_t) (raw - ambientDistance);
 }
 
+/**
+ * @brief recalibrates ambient value
+ * 
+ */
 void ADC_Distance_Calibrate()
 {
   const size_t bufferSize = 10;

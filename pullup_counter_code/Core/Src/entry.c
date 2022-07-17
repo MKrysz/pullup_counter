@@ -2,6 +2,7 @@
 #include "entry.h"
 #include "rtc.h"
 #include "w25qxx.h"
+#include "eeprom.h"
 #include <stdio.h>
 
 /**
@@ -23,6 +24,7 @@ void ENTRY_SetTimestamp(entry_t* entry)
     entry->weekday_ = sdate.WeekDay;
     entry->date_ = sdate.Date;
     entry->month_ = sdate.Month;
+    entry->year_ = sdate.Year;
 }
 
 /**
@@ -40,7 +42,7 @@ bool ENTRY_IsEqual(entry_t* left, entry_t* right)
         && (left->month_ == right->month_)
         && (left->date_ == right->date_)
         && (left->weekday_ == right->weekday_)
-        && (left->UNUSED == right->UNUSED);
+        && (left->year_ == right->year_);
 }
 
 /**
@@ -82,4 +84,20 @@ void ENTRY_Read(entry_t* entry, uint32_t ddr)
     uint32_t ddr_inBytes = ddr * sizeof(entry_t);
 
     W25qxx_ReadBytes((uint8_t *)entry, ddr_inBytes, sizeof(entry_t));
+}
+
+/**
+ * @brief writes entry to flash and checks if operation was successful; also increments EEPROM_LAST_DDR variable
+ * 
+ * @param entry entry to be written
+ * @return true if operation was a success
+ */
+bool ENTRY_WriteWithCheck(entry_t *entry)
+{
+      uint32_t currentDDR = EEPROM_ReadUINT32(EEPROM_VAR_LAST_DDR)+1;
+      ENTRY_Write(entry, currentDDR);
+      entry_t tempEntry;
+      ENTRY_Read(&tempEntry, currentDDR);
+      EEPROM_WriteUINT32(EEPROM_VAR_LAST_DDR, currentDDR);
+      return ENTRY_IsEqual(entry, &tempEntry);
 }

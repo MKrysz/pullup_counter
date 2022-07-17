@@ -9,8 +9,9 @@ typedef struct _settings_struct{
     uint32_t timeTillShutdown;
     uint32_t pullupTimeMin;
     uint32_t pullupTimeMax;
-    int32_t distanceThreshold;
+     int32_t distanceThreshold;
     uint32_t batteryVoltageThreshold;
+    uint32_t startOfNextDay; 
 }settings_t;
 
 #define Settings_Save(settings) EEPROM_WriteMultipleWords(EEPROM_VAR_SETTINGS, (uint32_t*)(&(settings)), (sizeof(settings_t)/4))

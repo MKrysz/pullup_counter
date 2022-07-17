@@ -155,10 +155,11 @@ void RTC_WeekDay2String(uint8_t weekday, char* dst)
     "Saturday",
     "Sunday"
   };
-
-  for (size_t i = 0; truthTable[weekday-1][i] != '\0'; i++){
+  size_t i;
+  for(i = 0; truthTable[weekday-1][i] != '\0'; i++){
     dst[i] = truthTable[weekday-1][i];
   }
+  dst[i] = 0;
 }
 
 /**

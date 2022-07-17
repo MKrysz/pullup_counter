@@ -31,6 +31,8 @@
 // returns string with varaibles name
 #define str(s) #s
 
+#define CMD_EQ(ARG_NR, X) (strcmp(args.str[(ARG_NR)], (X)) == 0)
+
 const char welcomeMsg[] = 
     "/******************** Pull-up counter V02 *********************\\\n"
     "/********************      By MKrysz      *********************\\\n"
@@ -47,12 +49,15 @@ const char helpFlashMsg[] =
     "flash last - reads last written entry\n"
     "flash dump - reads all entries from flash in chronological order\n"
     "flash raw - reads all entries from flash in machine-friendly format:\n"
-    "\t id hour min month date weekday, separated by tabs\n";
+    "flash write: starts writing sequence where you put flash data in machine-friendly format\n"
+    "machine-friendly format:\n"
+    "\t id hour min month date weekday year, separated by tabs\n";
 
 const char helpEepromMsg[] = 
     "Address map:\n" 
     str(EEPROM_VAR_LAST_DDR) " - " xstr(EEPROM_VAR_LAST_DDR)"\n"
     str(EEPROM_VAR_PULLUP_COUNTER) " - " xstr(EEPROM_VAR_PULLUP_COUNTER) "\n"
+    str(EEPROM_VAR_NEXT_ID) " - " xstr(EEPROM_VAR_NEXT_ID) "\n"
     "eeprom read X - reads data from EEPROM in address X\n"
     "eeprom write X Y - writes Y to EEPROM in address X\n";
 
@@ -78,6 +83,7 @@ const char helpSettingsMsg[] =
     "setting pullupTimeMin - sets minimum time of the pullup to be detected\n"
     "settings distanceThreshold - sets threshold of the distance sensor\n"
     "settings batteryVoltageThreshold - sets low voltage warning threshold\n"
+    "settings startOfNextDay - sets hour in wich pullup counter is reset\n"
     "settings read - prints current settings\n";
 
 extern settings_t settings;
@@ -87,6 +93,7 @@ void flashLast();
 void flashDump();
 void flashRaw();
 void flashClear();
+void flashWrite();
 
 void eepromRead(uint32_t ddr);
 void eepromWrite(uint32_t ddr, uint32_t data);
@@ -149,7 +156,7 @@ void CLI_UserInterface()
         instructionBuffer[i] = 0;
     }
 
-    HAL_UART_Receive(&huart2, instructionBuffer, bufferSize, 500);
+    HAL_UART_Receive(&huart2, (uint8_t *)instructionBuffer, bufferSize, 500);
     // if nothing received contine
     if(instructionBuffer[0] == 0)
         continue;
@@ -169,20 +176,20 @@ void CLI_UserInterface()
     printf("arg.integer[1] = %li\n", args.integer[1]);
     #endif
     
-    if(strcmp(args.str[0], "help") == 0){
-        if(strcmp(args.str[1], "adc") == 0){
+    if(CMD_EQ(0, "help")){
+        if(CMD_EQ(1, "adc")){
             printf(helpAdcMsg);
         }
-        else if(strcmp(args.str[1], "rtc") == 0){
+        else if(CMD_EQ(1, "rtc")){
             printf(helpRtcMsg);
         }
-        else if(strcmp(args.str[1], "flash") == 0){
+        else if(CMD_EQ(1, "flash")){
             printf(helpFlashMsg);
         }
-        else if(strcmp(args.str[1], "eeprom") == 0){
+        else if(CMD_EQ(1, "eeprom")){
             printf(helpEepromMsg);
         }
-        else if(strcmp(args.str[1], "settings") == 0){
+        else if(CMD_EQ(1, "settings")){
             printf(helpSettingsMsg);
         }
         
@@ -190,82 +197,89 @@ void CLI_UserInterface()
             printf(helpMsg);
         }
     }
-    else if(strcmp(args.str[0], "flash") == 0){
-        if(strcmp(args.str[1], "read") == 0){
+    else if(CMD_EQ(0, "flash")){
+        if(CMD_EQ(1, "read")){
             flashRead(args.integer[0]);
         }
-        else if(strcmp(args.str[1], "last") == 0){
+        else if(CMD_EQ(1, "last")){
             flashLast();
         }
-        else if(strcmp(args.str[1], "dump") == 0){
+        else if(CMD_EQ(1, "dump")){
             flashDump();
         }
-        else if(strcmp(args.str[1], "raw") == 0){
+        else if(CMD_EQ(1, "raw")){
             flashRaw();
         }
-        else if(strcmp(args.str[1], "clear") == 0){
+        else if(CMD_EQ(1, "clear")){
             flashClear();
         }
+        else if(CMD_EQ(1, "write")){
+            flashWrite();
+        }
     }
-    else if(strcmp(args.str[0], "eeprom") == 0){
-        if(strcmp(args.str[1], "read") == 0){
+    else if(CMD_EQ(0, "eeprom")){
+        if(CMD_EQ(1, "read")){
             eepromRead(args.integer[0]);
         }
-        else if(strcmp(args.str[1], "write") == 0){
+        else if(CMD_EQ(1, "write")){
             eepromWrite(args.integer[0], args.integer[1]);
         }
     }
-    else if(strcmp(args.str[0], "adc") == 0){
-        if(strcmp(args.str[1], "battery") == 0){
+    else if(CMD_EQ(0, "adc")){
+        if(CMD_EQ(1, "battery")){
             adcBattery();
         }
-        else if(strcmp(args.str[1], "read") == 0){
+        else if(CMD_EQ(1, "read")){
             adcRead(args.integer[0]);
         }
-        else if(strcmp(args.str[1], "calibrate") == 0){
+        else if(CMD_EQ(1, "calibrate")){
             ADC_Distance_Calibrate();
         }
     }
     
-    else if(strcmp(args.str[0], "rtc") == 0){
-        if(strcmp(args.str[1], "date") == 0){
+    else if(CMD_EQ(0, "rtc")){
+        if(CMD_EQ(1, "date")){
             rtcDate(args.integer[0], args.integer[1]);
         }
-        else if(strcmp(args.str[1], "time") == 0){
+        else if(CMD_EQ(1, "time")){
             rtcTime(args.integer[0], args.integer[1]);
         }
-        else if(strcmp(args.str[1], "read") == 0){
+        else if(CMD_EQ(1, "read")){
             rtcRead();
         }
-        else if(strcmp(args.str[1], "weekday") == 0){
+        else if(CMD_EQ(1, "weekday")){
             rtcWeekday(args.integer[0]);
         }
-        else if(strcmp(args.str[1], "year") == 0){
+        else if(CMD_EQ(1, "year")){
             rtcYear(args.integer[0]);
         }
     }
-    else if(strcmp(args.str[0], "settings") == 0){
-        if(strcmp(args.str[1], "shutdownTime") == 0){
+    else if(CMD_EQ(0, "settings")){
+        if(CMD_EQ(1, "shutdownTime")){
             settings.timeTillShutdown = args.integer[0];
             Settings_Save(settings);
         }
-        else if(strcmp(args.str[1], "pullupTimeMax") == 0){
+        else if(CMD_EQ(1, "pullupTimeMax")){
             settings.pullupTimeMax = args.integer[0];
             Settings_Save(settings);
         }
-        else if(strcmp(args.str[1], "pullupTimeMin") == 0){
+        else if(CMD_EQ(1, "pullupTimeMin")){
             settings.pullupTimeMin = args.integer[0];
             Settings_Save(settings);
         }
-        else if(strcmp(args.str[1], "distanceThreshold") == 0){
+        else if(CMD_EQ(1, "distanceThreshold")){
             settings.distanceThreshold = args.integer[0];
             Settings_Save(settings);
         }
-        else if(strcmp(args.str[1], "batteryVoltageThreshold") == 0){
+        else if(CMD_EQ(1, "batteryVoltageThreshold")){
             settings.batteryVoltageThreshold = args.integer[0];
             Settings_Save(settings);
         }
-        else if(strcmp(args.str[1], "read") == 0){
+        else if(CMD_EQ(1, "startOfNextDay")){
+            settings.startOfNextDay = args.integer[0];
+            Settings_Save(settings);
+        }
+        else if(CMD_EQ(1, "read")){
             Settings_Print(&settings);
         }
     }
@@ -319,7 +333,63 @@ void flashClear()
 {
     printf("Erasing started...\n");
     W25qxx_EraseChip();
+    EEPROM_WriteUINT32(EEPROM_VAR_LAST_DDR, 0);
+    EEPROM_WriteUINT32(EEPROM_VAR_NEXT_ID, 0);
     printf("Erasing completed\n");
+}
+
+
+// "\t id hour min month date weekday year, separated by tabs\n";
+void flashWrite()
+{
+    const size_t bufferSize = 32;
+    char instructionBuffer[bufferSize];
+    printf("To end writing sequence just press enter\n");
+
+
+    while(1){
+        for (size_t i = 0; i < bufferSize; i++){
+            instructionBuffer[i] = 0;
+        }
+
+        HAL_UART_Receive(&huart2, instructionBuffer, bufferSize, 500);
+        // if nothing received contine
+        if(instructionBuffer[0] == 0)
+            continue;
+        
+        #if CLI_DEBUG
+        printf("echo %s\n", instructionBuffer);
+        #endif
+        entry_t entry = {0};
+
+        //! couldn't get  sscanf to work with uint8_t so i found a work-around
+        uint32_t id;
+        uint32_t hour;
+        uint32_t min;
+        uint32_t date;
+        uint32_t month;
+        uint32_t year;
+        uint32_t weekday;
+        sscanf(instructionBuffer, "%u %u %u %u %u %u %u", &id, &hour, &min,
+            &month, &date, &weekday, &year);
+        entry.id_ = id;
+        entry.hour_ = hour;
+        entry.minutes_ = min;
+        entry.date_ = date;
+        entry.year_ = year;
+        entry.weekday_ = weekday;
+        entry.month_ = month;
+
+        entry_t zeroEntry = {0};
+        if(ENTRY_IsEqual(&entry, &zeroEntry)){
+            break;
+        }
+        if(!ENTRY_WriteWithCheck(&entry)){
+            printf("Error occurred while saving the entry\n Restart required\n");
+            while(1);
+        }
+        printf("writing success\n");
+    }
 }
 
 void eepromRead(uint32_t ddr)
