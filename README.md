@@ -3,7 +3,7 @@
 
 ## About
 
-The main purpose of the project was to automatically count and save the amount of pullups I make. I developed a small device mounted onto the pullup bar that saves every pullup, shows how many pullups were done that day and has an USB interface for accessing the data and changing parameters of the device.
+The main purpose of the project was to automatically count and save the amount of pullups I make. I developed a small device mounted onto the bar that saves every pullup, shows how many were already done that day and has an USB interface for accessing the data and changing parameters of the device.
 
 ## Hardware
 
@@ -13,7 +13,7 @@ The main purpose of the project was to automatically count and save the amount o
 
 Schematic and PCB was made in KiCad.
 
-For the power supply I decided that 2 AAA batteries would be the best choice, as they're easily available and have good volumetric energy density. Embedding the Li-Po battery was out of the table, because the project is stationary and charging wouldn't be possible. 
+For the power supply I decided that 2 AAA batteries would be the best choice, as they're easily available and have good volumetric energy density. Embedding the Li-Po battery was out of the table, because the project is stationary and charging wouldn't be possible.
 
 As the brain of the device I went with STM32L0 series microcontroller because of following reasons:
 
@@ -23,7 +23,7 @@ As the brain of the device I went with STM32L0 series microcontroller because of
 
 I chose a STM32L051C8 as I had few of them lying around.
 
-The MCU has a backup battery used for maintaining operation of RTC clock while main batteries are discharged or being replaced. For display I used 7 segment display as they're cheap, small and easy to drive. They're also perfect for displaying numbers which is all they're used here for. For a memory in which I would store my database i used a 512kB SPI Flash - P25Q40H. For the communication with the device I went with USB serial port, so I included an USB port and USB-UART converter. I also included a capacitive touch pad and little sensor IC. For detecting pullups I used proximity sesor consisting of IR Led diode and photodiode.
+The MCU has a backup battery used for maintaining operation of RTC clock while main batteries are discharged or being replaced. The amount of pullups are displayed on 7 segment display as it's cheap, small and easy to drive. It's also perfect for displaying numbers which is all It's used here for. For a memory in which I would store my database i used a 512kB SPI Flash - P25Q40H. Communication with the device is done with USB serial port, so I included an USB port and USB-UART converter. I also included a capacitive touch pad and little sensor IC as a way to wake the device up. For detecting pullups I used proximity sesor consisting of IR Led diode and photodiode.
 
 PCBs were manufactured by JLCPCB, and are shown below:
 ![Front](pullup_counter_readme/BoardFront.jpg)
@@ -77,7 +77,7 @@ User interface allows the user for easy change of important parameters, debuggin
 
 ![User Interface](pullup_counter_readme/UserInterface0.png)
 
-### Data analysys
+### Data analysis
 
 Python script that reads and interprets data acquired from the device. Below are shown examples of generated plots:
 ![Plot](pullup_counter_readme/PullupDistributionDuringDay.png)
