@@ -1,9 +1,9 @@
 
-# PULLUP Counter
+# Pullup Counter
 
 ## About
 
-The main purpose of the project was to automatically count and save the amount of pullups I make. I developed a small device mounted onto the bar that saves every pullup, shows how many were already done that day and has an USB interface for accessing the data and changing parameters of the device.
+The main purpose of the project was to automatically count and save the amount of pullups I do to evaluate them later using python script. For this purpose I developed a small device mounted onto the bar. Other features include display for showing how many pullups were already done that day and USB serial port for easy to use interface with the device.
 
 ## Hardware
 
