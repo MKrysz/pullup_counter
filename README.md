@@ -18,7 +18,7 @@ For the power supply I decided that 2 AAA batteries would be the best choice, as
 As the brain of the device I went with STM32L0 series microcontroller because of following reasons:
 
 - low power consumption and low operating voltage, which is mandatory in battery operated systems like this
-- my familiarity with developing both harware and software with this series
+- my familiarity with developing both harware and software development with this series
 - affordable price.
 
 I chose a STM32L051C8 as I had few of them lying around.
