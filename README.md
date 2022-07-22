@@ -46,9 +46,9 @@ Mounting is done using 3D-printed mounting system and four pairs of M3 bolts and
 
 ### Embedded
 
-Project was made in VSCode using [stm32-for-vscode](https://github.com/bmd-studio/stm32-for-vscode) extension. For this project I used [stm32CubeMX](https://www.st.com/en/development-tools/stm32cubemx.html) for generating initialization. I've also used drivers for SPI flash memory from this [github repository](https://github.com/nimaltd/w25qxx).
+Project was made in VSCode using [stm32-for-vscode](https://github.com/bmd-studio/stm32-for-vscode) extension. For this project I used [stm32CubeMX](https://www.st.com/en/development-tools/stm32cubemx.html) for generating initialization code. I've also used drivers for SPI flash memory from this [github repository](https://github.com/nimaltd/w25qxx).
 
-The device must be woken up before every training session, which can be done either by physical btn or capacitive touch pad. After that if device haven't detected a pullup within specified time, it goes back to sleep to prolong battery life.
+The device must be woken up before every training session, which can be done either by physical button or capacitive touch pad. After that if device haven't detected a pullup within specified time, it goes back to sleep to prolong battery life.
 
 Every pullup is represented with following struct
 
