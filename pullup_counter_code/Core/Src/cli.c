@@ -41,17 +41,17 @@ const char welcomeMsg[] =
 
 const char helpMsg[] = 
     "for specific help type help X, where X can be:\n"
-    "'flash', 'eeprom', 'adc', 'rtc', 'display', 'settings'\n";
+    "'flash', 'eeprom', 'adc', 'rtc', 'settings'\n";
 
 const char helpFlashMsg[] = 
-    "flash read X - reads entry X written in flash\n"
+    "flash readSince X - reads all entries starting from address X\n"
     "flash clear - clears the entire flash memory\n"
+    "flash readOne X - reads an entry from address X"
     "flash last - reads last written entry\n"
-    "flash dump - reads all entries from flash in chronological order\n"
-    "flash raw - reads all entries from flash in machine-friendly format:\n"
+    "flash readAll - reads all entries from flash in machine-friendly format:\n"
     "flash write: starts writing sequence where you put flash data in machine-friendly format\n"
     "machine-friendly format:\n"
-    "\t id hour min month date weekday year, separated by tabs\n";
+    "\t id hour min month date weekday year, separated by spaces\n";
 
 const char helpEepromMsg[] = 
     "Address map:\n" 
@@ -91,9 +91,10 @@ extern settings_t settings;
 void flashRead(uint32_t ddr);
 void flashLast();
 void flashDump();
-void flashRaw();
+void flashReadAll();
 void flashClear();
 void flashWrite();
+void flashReadSince(uint32_t ddr);
 
 void eepromRead(uint32_t ddr);
 void eepromWrite(uint32_t ddr, uint32_t data);
@@ -198,20 +199,20 @@ void CLI_UserInterface()
         }
     }
     else if(CMD_EQ(0, "flash")){
-        if(CMD_EQ(1, "read")){
+        if(CMD_EQ(1, "readSince")){
+            flashReadSince(args.integer[0]);
+        }
+        else if(CMD_EQ(1, "clear")){
+            flashClear();
+        }
+        else if(CMD_EQ(1, "readOne")){
             flashRead(args.integer[0]);
         }
         else if(CMD_EQ(1, "last")){
             flashLast();
         }
-        else if(CMD_EQ(1, "dump")){
-            flashDump();
-        }
-        else if(CMD_EQ(1, "raw")){
-            flashRaw();
-        }
-        else if(CMD_EQ(1, "clear")){
-            flashClear();
+        else if(CMD_EQ(1, "readAll")){
+            flashReadAll();
         }
         else if(CMD_EQ(1, "write")){
             flashWrite();
@@ -291,12 +292,23 @@ void CLI_UserInterface()
   }
 }
 
+void flashReadSince(uint32_t ddr)
+{
+    ENTRY_PrintRawFormat();
+    uint32_t lastDdr = EEPROM_ReadUINT32(EEPROM_VAR_LAST_DDR);
+    for(uint32_t i = ddr+1; i <= lastDdr; i++){
+        entry_t entry;
+        ENTRY_Read(&entry, i);
+        ENTRY_PrintRaw(&entry);
+    }
+}
 
 void flashRead(uint32_t ddr)
 {
     entry_t entry;
-    ENTRY_Read(&entry, ddr);
-    ENTRY_Print(&entry);
+    ENTRY_Read(&entry, ddr+1);
+    ENTRY_PrintRawFormat();
+    ENTRY_PrintRaw(&entry);
     printf("\n");
 }
 
@@ -306,27 +318,9 @@ void flashLast()
     flashRead(lastDdr);
 }
 
-void flashDump()
+void flashReadAll()
 {
-    uint32_t lastDdr = EEPROM_ReadUINT32(EEPROM_VAR_LAST_DDR);
-    for (uint32_t ddr = 1; ddr <= lastDdr; ddr++)
-    {
-        flashRead(ddr);
-    }
-    
-}
-
-void flashRaw()
-{
-    printf("Id\tHour\tMin\tMonth\tDate\tWeekday\n");
-    uint32_t lastDdr = EEPROM_ReadUINT32(EEPROM_VAR_LAST_DDR);
-    for (uint32_t ddr = 1; ddr <= lastDdr; ddr++){
-        entry_t entry;
-        ENTRY_Read(&entry, ddr);
-        printf("%u\t%u\t%u\t%u\t%u\t%u\n", 
-        entry.id_, entry.hour_, entry.minutes_, entry.month_,
-        entry.date_, entry.weekday_);
-    }
+    flashReadSince(0);
 }
 
 void flashClear()
@@ -362,7 +356,7 @@ void flashWrite()
         #endif
         entry_t entry = {0};
 
-        //! couldn't get  sscanf to work with uint8_t so i found a work-around
+        //! couldn't get  sscanf to work with uint8_t so I found a work-around
         uint32_t id;
         uint32_t hour;
         uint32_t min;

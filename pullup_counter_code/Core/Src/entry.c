@@ -46,7 +46,7 @@ bool ENTRY_IsEqual(entry_t* left, entry_t* right)
 }
 
 /**
- * @brief prints entry to the console
+ * @brief prints entry to the console in human-friendly format
  * 
  * @param entry 
  */
@@ -58,6 +58,22 @@ void ENTRY_Print(entry_t* entry)
     // printf("UNUSED = %u\n\n\n", entry->UNUSED);
 }
 
+void ENTRY_PrintRawFormat()
+{
+    printf("Id Hour Min Month Date Weekday Year\n");
+}
+
+/**
+ * @brief prints entry to the console in machine-friendly format
+ * 
+ * @param entry 
+ */
+void ENTRY_PrintRaw(entry_t *entry)
+{
+    printf("%u %u %u %u %u %u %u\n", 
+    entry->id_, entry->hour_, entry->minutes_, entry->month_,
+    entry->date_, entry->weekday_, entry->year_);
+}
 
 void ENTRY_Write(entry_t* entry, uint32_t ddr)
 {
