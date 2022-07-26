@@ -58,11 +58,14 @@ class PullupSerial():
             self.SendCmd("flash readSince "+ str(lastEntry.id+1))
             # get format line out of the buffer
             self.ser.readline()
+            entriesSaved = 0
             while(1):
                 line = self.ser.readline()
                 if line == b"OK\n":
                     break
                 dataFile.write(str(line, 'utf-8'))
+                entriesSaved += 1
+            print("saved", entriesSaved, "entries")
     
     def DataBackupCreate(self):
         if os.path.exists('data.txt'):
@@ -70,19 +73,42 @@ class PullupSerial():
             return
         with open('data.txt', 'x') as dataFile:
             self.SendCmd("flash readAll")
-            # get format line out of the buffer
-            self.ser.readline()
+            entriesSaved = -1
             while(1):
                 line = self.ser.readline()
                 if line == b"OK\n":
                     break
                 dataFile.write(str(line, 'utf-8'))
+                entriesSaved += 1
+            print("DataBackup created with", entriesSaved, "entries")
+    
+    def readline(self):
+        return str(self.ser.readline(), 'utf-8')
+    
+    def RTC_Read(self):
+        self.SendCmd("rtc read")
+        result = self.readline()
+        result += self.readline()
+        result += self.readline()
+        self.checkOk()
+        return result
     
     def RTC_Update(self):
+        print("RTC time before update = \n", self.RTC_Read())
         now = datetime.now()
         timeStr = now.strftime("%H %M")
         self.SendCmd("rtc time " + timeStr)
         self.checkOk()
+        dateStr = now.strftime("%d %m")
+        self.SendCmd("rtc date " + dateStr)
+        self.checkOk()
+        yearStr = now.strftime("%y")
+        self.SendCmd("rtc year " + yearStr)
+        self.checkOk()
+        weekdayNr = datetime.today().weekday() + 1
+        self.SendCmd("rtc weekday " + str(weekdayNr))
+        self.checkOk()
+        print("RTC time after update = \n", self.RTC_Read())
         
 
 
