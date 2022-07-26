@@ -33,5 +33,5 @@ def plotCalendar(data):
 
 
 plotDayDistribution(data)
-# plotCalendar(data)
+plotCalendar(data)
 
