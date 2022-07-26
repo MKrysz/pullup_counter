@@ -36,3 +36,5 @@
 **/*_code/build
 **/*_code/.vscode
 .vscode/
+
+pullup_counter_dataAnalysis/__pycache__/
