@@ -38,3 +38,6 @@
 .vscode/
 
 pullup_counter_dataAnalysis/__pycache__/
+
+# jupyter notebook used for testing functions
+pullup_counter_dataAnalysis/NotebookForTests.ipynb

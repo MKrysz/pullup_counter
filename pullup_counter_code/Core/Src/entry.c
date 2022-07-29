@@ -60,7 +60,7 @@ void ENTRY_Print(entry_t* entry)
 
 void ENTRY_PrintRawFormat()
 {
-    printf("Id Hour Min Month Date Weekday Year\n");
+    printf("Id Hour Minutes Month Day Weekday Year\n");
 }
 
 /**
