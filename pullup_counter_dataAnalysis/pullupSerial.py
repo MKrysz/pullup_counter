@@ -6,7 +6,7 @@ from datetime import datetime
 
 class PullupSerial():
 
-    def __init__(self, debug = True) -> None:
+    def __init__(self, debug = False) -> None:
         self.ser = serial.Serial()
         self.debug = debug
 
