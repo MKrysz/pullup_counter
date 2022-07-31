@@ -114,7 +114,17 @@ class PullupSerial():
 
 class PullupEntry():
 
-    def __init__(self, str):
+    def __init__(self, str = ''):
+        if str == '':
+            self.id = 0
+            self.hour = 0
+            self.minute = 0
+            self.day = 0
+            self.month = 0
+            self.year = 0
+            self.count = 0
+            return
+
         strArgs = str.split(' ')
         args = []
         for strArg in strArgs:
@@ -122,11 +132,11 @@ class PullupEntry():
         
         self.id = args[0]
         self.hour = args[1]
-        self.min = args[2]
-        self.month = args[3]
-        self.date = args[4]
-        self.weekday = args[5]
-        self.year = args[6]
+        self.minute = args[2]
+        self.day = args[3]
+        self.month = args[4]
+        self.year = args[5]
+        self.count = args[6]
 
     def toRaw(self):
         result = ''
@@ -134,16 +144,19 @@ class PullupEntry():
         result += ' '
         result += str(self.hour)
         result += ' '
-        result += str(self.min)
+        result += str(self.minute)
+        result += ' '
+        result += str(self.day)
         result += ' '
         result += str(self.month)
         result += ' '
-        result += str(self.date)
-        result += ' '
-        result += str(self.weekday)
-        result += ' '
         result += str(self.year)
+        result += ' '
+        result += str(self.count)
         return result
+
+    def __str__(self):
+        return self.toRaw()
 
 # for testing the module
 def main():

@@ -4,6 +4,7 @@ import matplotlib.pyplot as plt
 import matplotlib.ticker as mtick
 import pandas as pd
 import numpy as np
+from copy import deepcopy
 import calplot
 import calmap
 
@@ -49,11 +50,8 @@ def plotDayDistribution(data):
 
 
 def plotCalendarHeatmap(data):
-    data = pd.read_table('data.txt', delimiter = ' ')
-    data["Year"] = data["Year"] + 2000
-    data['datetime'] = pd.to_datetime(data[["Year", "Month", "Day"]])
-    data = data.drop(["Hour", "Month", "Year", "Day", "Minutes", "Id", "Weekday"], axis=1)
-    data = pd.Series(1, data['datetime'])
+    data = deepcopy(data)
+    data = pd.Series(data.Count.values, data['datetime'])
     fig, ax = calmap.calendarplot(data)                                                                                                                                   
     fig.colorbar(ax[0].get_children()[1], ax=ax.ravel().tolist())  
     fig.suptitle('Number of pull-ups per day heatmap', fontsize=16)
@@ -84,12 +82,31 @@ def plotWeekDistribution(data):
     plt.grid('on')
     plt.show()
 
-def generalDataAnalysis(data, nrOfDays):
-    startDate = datetime.now() - timedelta(days=nrOfDays)
+def readData():
     data = pd.read_table('data.txt', delimiter = ' ')
     data.set_index('Id', inplace = True)
-    data = data.drop(data[(data.Month < startDate.month) | (data.Day < startDate.day)].index)
-    print(data)
+    data['Year'] = data['Year'] + 2000
+    data['datetime'] = pd.to_datetime(data[["Year", "Month", "Day", "Hour", "Minute"]])
+    data = data.drop(['Year', 'Month', 'Day', 'Hour', 'Minute'], axis=1)
+    return data
+
+
+def generalDataAnalysis(data, nrOfDays):
+    startDate = datetime.now() - timedelta(days=nrOfDays)
+    data = data.drop(data[(data.datetime < startDate)].index)
+    SumOfPullups = data.Count.sum()
+    print('Data from the last', nrOfDays, 'days')
+    print('Pull-ups done :', SumOfPullups)
+    print('Average per day : {:.2f}'.format(SumOfPullups/nrOfDays))
+    print()
+
+def analyze():
+    data = readData()
+    generalDataAnalysis(data, 7)
+    generalDataAnalysis(data, 30)
+    generalDataAnalysis(data, 365)
+    plotDayDistribution(data)
+    plotCalendarHeatmap(data)
 
 def interface():
     while(1):
@@ -104,17 +121,14 @@ def interface():
             plotWeekDistribution(0)
         elif(cmd in ("calendar", 'cal')):
             plotCalendarHeatmap(0)
+        elif(cmd in ('analyze', 'a')):
+            analyze()
         else:
             print("Unknown command")
     return 0
 
 def test():
-    # plotDayDistribution()
-    # plotWeekDistribution()
-    # plotCalendarHeatmap()
-    generalDataAnalysis(None, 7)
-    # generalDataAnalysis(None, 30)
-    # generalDataAnalysis(None, 365)
+    return 0
 
 def main():
     interface()
