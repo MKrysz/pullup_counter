@@ -7,25 +7,21 @@
 #define DEBUG_ENTRY 0
 
 /**
- * @brief data type representing one pullup, used to be saved in flash
+ * @brief data type representing one entry as is it saved in flash
  * 
  */
 typedef struct _entry_struct
 {
-    uint16_t id_;
+    uint32_t id;
+    unsigned int count:6;
+    unsigned int minute:6;
+    unsigned int hour:5;
+    unsigned int day:5;
+    unsigned int month:4;
+    unsigned int year:6;
+}entry_t;
 
-    uint8_t hour_;
-    uint8_t minutes_;
-
-    uint8_t month_;
-    uint8_t date_;
-    uint8_t weekday_;
-    uint8_t year_;
-} entry_t;
-
-
-
-
+void ENTRY_CreateFromString(entry_t* entry, char* str);
 void ENTRY_Write(entry_t* entry, uint32_t ddr);
 void ENTRY_Read(entry_t* entry, uint32_t ddr);
 void ENTRY_SetTimestamp(entry_t* entry);

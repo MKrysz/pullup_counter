@@ -46,7 +46,7 @@
 
 /* Private define ------------------------------------------------------------*/
 /* USER CODE BEGIN PD */
-#define STBY 0
+#define STBY 1
 /* USER CODE END PD */
 
 /* Private macro -------------------------------------------------------------*/
@@ -116,6 +116,7 @@ int main(void)
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
   Settings_Read(settings);
+
   // Check battery voltage
   // if low voltage detected inform user via 7-seg display
   if(ADC_MeasureBattery() < settings.batteryVoltageThreshold){
@@ -127,51 +128,73 @@ int main(void)
     }
     Display_disable();
   }
+
   ADC_Distance_Calibrate();
 
   // user interface
   if(GPIO_GetUsbFlag())
     CLI_UserInterface();
 
-
-  //detecting, saving and showing pullups
-  uint32_t lastDetectedPullup = HAL_GetTick();
+  // initialize variables
   uint32_t pullupCounter = EEPROM_ReadUINT32(EEPROM_VAR_PULLUP_COUNTER);
   Display_enable();
   Display_setInt(pullupCounter);
+  uint8_t pullupCount = 0;
+  RTC_DateTypeDef sDate = {0};
+  RTC_TimeTypeDef sTime = {0};
+  HAL_RTC_GetTime(&hrtc, &sTime, RTC_FORMAT_BIN);
+  HAL_RTC_GetDate(&hrtc, &sDate, RTC_FORMAT_BIN);
+  entry_t lastEntry;
+  ENTRY_Read(&lastEntry, EEPROM_ReadUINT32(EEPROM_VAR_LAST_DDR)-1);
+  if(lastEntry.day != sDate.Date || lastEntry.month != sDate.Month || lastEntry.year != sDate.Year){
+      pullupCounter = 0;
+  }
+
+  // count pull-ups loop
+  uint32_t lastDetectedPullup = HAL_GetTick(); 
   while(HAL_GetTick()-lastDetectedPullup < settings.timeTillShutdown){
     uint32_t timeDelta = measurePullupTime(); 
     if(settings.pullupTimeMin < timeDelta && timeDelta < settings.pullupTimeMax){
       lastDetectedPullup = HAL_GetTick();
-      entry_t entry; 
-      ENTRY_SetTimestamp(&entry);
-      uint32_t id = EEPROM_ReadUINT32(EEPROM_VAR_NEXT_ID);
-      entry.id_ = (uint16_t)id;
-      EEPROM_WriteUINT32(EEPROM_VAR_NEXT_ID, ++id);
-      if(!ENTRY_WriteWithCheck(&entry)){
-        while(1){
-          Display_ShowString("FLASH ERROR", 250);
-          HAL_Delay(1000);
-        }
+      pullupCount++;
+      Display_setInt(pullupCounter+pullupCount);
+    } 
+  }
+
+  // save entry
+  EEPROM_WriteUINT32(EEPROM_VAR_PULLUP_COUNTER, pullupCounter+pullupCount);
+  if(pullupCount != 0){
+
+    uint32_t id = EEPROM_ReadUINT32(EEPROM_VAR_NEXT_ID);
+    entry_t entry;
+    entry.id = id;
+    entry.count = pullupCount;
+
+    entry.year = sDate.Year;
+    entry.month = sDate.Month;
+    entry.day = sDate.Date;
+    
+    entry.hour = sTime.Hours;
+    entry.minute = sTime.Minutes;
+    EEPROM_WriteUINT32(EEPROM_VAR_NEXT_ID, ++id);
+
+    if(!ENTRY_WriteWithCheck(&entry)){
+      while(1){
+        Display_ShowString("FLASH ERROR", 250);
+        HAL_Delay(1000);
       }
-      pullupCounter = EEPROM_ReadUINT32(EEPROM_VAR_PULLUP_COUNTER);
-      entry_t lastEntry;
-      ENTRY_Read(&lastEntry, EEPROM_ReadUINT32(EEPROM_VAR_LAST_DDR)-1);
-      if(lastEntry.date_ != entry.date_ || lastEntry.month_ != entry.month_ || lastEntry.year_ != entry.year_){
-        if( !isTheNextDay(lastEntry.date_, lastEntry.month_, entry.date_, entry.month_) || entry.hour_ >= settings.startOfNextDay ){
-          pullupCounter = 0;
-        }
-      }
-      pullupCounter++;
-      EEPROM_WriteUINT32(EEPROM_VAR_PULLUP_COUNTER, pullupCounter);
-      Display_setInt(pullupCounter);
     }
   }
+
   //shutdown routine
   //going into STOP mode with RTC
   Display_disable();
+  #if STBY
   HAL_SuspendTick();
   HAL_PWR_EnterSTOPMode(PWR_LOWPOWERREGULATOR_ON, PWR_STOPENTRY_WFI);
+  #endif
+
+  
   while (1)
   {
     /* USER CODE END WHILE */
@@ -233,7 +256,7 @@ void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin)
 {
   // SystemClock_Config();
   // HAL_ResumeTick();
-  HAL_NVIC_SystemReset();
+  // HAL_NVIC_SystemReset();
 }
 
 void programmingRoutine()

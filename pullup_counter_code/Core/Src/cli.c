@@ -51,7 +51,7 @@ const char helpFlashMsg[] =
     "flash readAll - reads all entries from flash in machine-friendly format:\n"
     "flash write: starts writing sequence where you put flash data in machine-friendly format\n"
     "machine-friendly format:\n"
-    "\t id hour min month date weekday year, separated by spaces\n";
+    "\t id hour minute month day year count, separated by spaces\n";
 
 const char helpEepromMsg[] = 
     "Address map:\n" 
@@ -59,7 +59,8 @@ const char helpEepromMsg[] =
     str(EEPROM_VAR_PULLUP_COUNTER) " - " xstr(EEPROM_VAR_PULLUP_COUNTER) "\n"
     str(EEPROM_VAR_NEXT_ID) " - " xstr(EEPROM_VAR_NEXT_ID) "\n"
     "eeprom read X - reads data from EEPROM in address X\n"
-    "eeprom write X Y - writes Y to EEPROM in address X\n";
+    "eeprom write X Y - writes Y to EEPROM in address X\n"
+    "eeprom erase - erases the eeprom\n";
 
 const char defaultMsg[] = 
     "Incorrect command \nType 'help' for list of available functions\n";
@@ -136,7 +137,7 @@ void _CLI_ClearArgs(cli_args_t * cli_args)
 
 void _CLI_ReadArgs(cli_args_t* cli_args, char* userInput)
 {
-    sscanf(userInput, "%s %s %li %li", cli_args->str[0], cli_args->str[1], 
+    sscanf(userInput, "%s %s %ld %ld", cli_args->str[0], cli_args->str[1], 
         &(cli_args->integer[0]), &(cli_args->integer[1]));
 }
 
@@ -202,7 +203,7 @@ void CLI_UserInterface()
         if(CMD_EQ(1, "readSince")){
             flashReadSince(args.integer[0]);
         }
-        else if(CMD_EQ(1, "clear")){
+        else if(CMD_EQ(1, "clear") || CMD_EQ(1, "erase")){
             flashClear();
         }
         else if(CMD_EQ(1, "readOne")){
@@ -224,6 +225,11 @@ void CLI_UserInterface()
         }
         else if(CMD_EQ(1, "write")){
             eepromWrite(args.integer[0], args.integer[1]);
+        }
+        else if(CMD_EQ(1, "erase")){
+            eepromWrite(0, 0);
+            eepromWrite(4, 0);
+            eepromWrite(8, 0);
         }
     }
     else if(CMD_EQ(0, "adc")){
@@ -356,24 +362,9 @@ void flashWrite()
         #endif
         entry_t entry = {0};
 
-        //! couldn't get  sscanf to work with uint8_t so I found a work-around
-        uint32_t id;
-        uint32_t hour;
-        uint32_t min;
-        uint32_t date;
-        uint32_t month;
-        uint32_t year;
-        uint32_t weekday;
-        sscanf(instructionBuffer, "%u %u %u %u %u %u %u", &id, &hour, &min,
-            &month, &date, &weekday, &year);
-        entry.id_ = id;
-        entry.hour_ = hour;
-        entry.minutes_ = min;
-        entry.date_ = date;
-        entry.year_ = year;
-        entry.weekday_ = weekday;
-        entry.month_ = month;
+        ENTRY_CreateFromString(&entry, instructionBuffer);
 
+        // if a line read didn't contain any values (for egzample command was "OK") end writing sequence
         entry_t zeroEntry = {0};
         if(ENTRY_IsEqual(&entry, &zeroEntry)){
             break;

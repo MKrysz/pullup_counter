@@ -5,6 +5,34 @@
 #include "eeprom.h"
 #include <stdio.h>
 
+
+/**
+ * @brief Creates an entry from a given string
+ * 
+ * @param entry 
+ * @param str 
+ */
+void ENTRY_CreateFromString(entry_t* entry, char* str)
+{
+    //! couldn't get  sscanf to work with uint8_t so I found a work-around
+    uint32_t id;
+    uint32_t hour;
+    uint32_t min;
+    uint32_t day;
+    uint32_t month;
+    uint32_t year;
+    uint32_t count;
+    sscanf(str, "%lu %u %u %u %u %u %u", &id, &hour, &min,
+        &day, &month, &year, &count);
+    entry->id = id;
+    entry->hour = hour;
+    entry->minute = min;
+    entry->day = day;
+    entry->year = year;
+    entry->month = month;
+    entry->count = count;
+}
+
 /**
  * @brief Set timestamp to an entry
  * 
@@ -18,13 +46,12 @@ void ENTRY_SetTimestamp(entry_t* entry)
     HAL_RTC_GetTime(&hrtc, &stime, RTC_FORMAT_BIN);
     HAL_RTC_GetDate(&hrtc, &sdate, RTC_FORMAT_BIN);
 
-    entry->hour_ = stime.Hours;
-    entry->minutes_ = stime.Minutes;
+    entry->hour = stime.Hours;
+    entry->minute = stime.Minutes;
     
-    entry->weekday_ = sdate.WeekDay;
-    entry->date_ = sdate.Date;
-    entry->month_ = sdate.Month;
-    entry->year_ = sdate.Year;
+    entry->day = sdate.Date;
+    entry->month = sdate.Month;
+    entry->year = sdate.Year;
 }
 
 /**
@@ -36,13 +63,18 @@ void ENTRY_SetTimestamp(entry_t* entry)
  */
 bool ENTRY_IsEqual(entry_t* left, entry_t* right)
 {
-    return (left->id_ == right->id_)
-        && (left->hour_ == right->hour_)
-        && (left->minutes_ == right->minutes_)
-        && (left->month_ == right->month_)
-        && (left->date_ == right->date_)
-        && (left->weekday_ == right->weekday_)
-        && (left->year_ == right->year_);
+    return (left->id == right->id)
+        && (left->hour == right->hour)
+        && (left->minute == right->minute)
+        && (left->month == right->month)
+        && (left->day == right->day)
+        && (left->year == right->year);
+    // for (size_t i = 0; i < sizeof(entry_t); i++)
+    // {
+    //     if(((uint8_t*)left)[i] != ((uint8_t*)right)[i])
+    //         return false;
+    // }
+    // return true;
 }
 
 /**
@@ -52,15 +84,15 @@ bool ENTRY_IsEqual(entry_t* left, entry_t* right)
  */
 void ENTRY_Print(entry_t* entry)
 {
-    printf("Entry nr:%u\r\n", entry->id_);
-    printf("Time of creation %u:%u\n", entry->hour_, entry->minutes_);
-    printf("Date of creation: %u/%u\nweekday:%u\r\n", entry->date_, entry->month_, entry->weekday_);
+    printf("Entry nr:%lu\r\n", entry->id);
+    printf("Time of creation %u:%u\n", entry->hour, entry->minute);
+    printf("Date of creation: %u/%u\n", entry->day, entry->month);
     // printf("UNUSED = %u\n\n\n", entry->UNUSED);
 }
 
 void ENTRY_PrintRawFormat()
 {
-    printf("Id Hour Minutes Month Day Weekday Year\n");
+    printf("Id Hour Minute Day Month Year Count\n");
 }
 
 /**
@@ -70,9 +102,9 @@ void ENTRY_PrintRawFormat()
  */
 void ENTRY_PrintRaw(entry_t *entry)
 {
-    printf("%u %u %u %u %u %u %u\n", 
-    entry->id_, entry->hour_, entry->minutes_, entry->month_,
-    entry->date_, entry->weekday_, entry->year_);
+    printf("%lu %u %u %u %u %u %u\n", 
+    entry->id, entry->hour, entry->minute, entry->day,
+    entry->month, entry->year, entry->count);
 }
 
 void ENTRY_Write(entry_t* entry, uint32_t ddr)
@@ -86,7 +118,6 @@ void ENTRY_Write(entry_t* entry, uint32_t ddr)
 
     W25qxx_WritePage((uint8_t*)entry, page, offset, sizeof(entry_t));
 }
-
 
 /**
  * @brief Reads entry from specified position in flash
@@ -117,3 +148,4 @@ bool ENTRY_WriteWithCheck(entry_t *entry)
       EEPROM_WriteUINT32(EEPROM_VAR_LAST_DDR, currentDDR);
       return ENTRY_IsEqual(entry, &tempEntry);
 }
+
