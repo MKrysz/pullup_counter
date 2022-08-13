@@ -37,6 +37,7 @@
 #include "entry.h"
 #include "w25qxx.h"
 #include "settings.h"
+#include "config.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -46,7 +47,6 @@
 
 /* Private define ------------------------------------------------------------*/
 /* USER CODE BEGIN PD */
-#define STBY 1
 /* USER CODE END PD */
 
 /* Private macro -------------------------------------------------------------*/
@@ -138,17 +138,17 @@ int main(void)
   // initialize variables
   uint32_t pullupCounter = EEPROM_ReadUINT32(EEPROM_VAR_PULLUP_COUNTER);
   Display_enable();
-  Display_setInt(pullupCounter);
   uint8_t pullupCount = 0;
   RTC_DateTypeDef sDate = {0};
   RTC_TimeTypeDef sTime = {0};
   HAL_RTC_GetTime(&hrtc, &sTime, RTC_FORMAT_BIN);
   HAL_RTC_GetDate(&hrtc, &sDate, RTC_FORMAT_BIN);
   entry_t lastEntry;
-  ENTRY_Read(&lastEntry, EEPROM_ReadUINT32(EEPROM_VAR_LAST_DDR)-1);
+  ENTRY_Read(&lastEntry, EEPROM_ReadUINT32(EEPROM_VAR_LAST_DDR));
   if(lastEntry.day != sDate.Date || lastEntry.month != sDate.Month || lastEntry.year != sDate.Year){
       pullupCounter = 0;
   }
+  Display_setInt(pullupCounter);
 
   // count pull-ups loop
   uint32_t lastDetectedPullup = HAL_GetTick(); 
@@ -189,7 +189,7 @@ int main(void)
   //shutdown routine
   //going into STOP mode with RTC
   Display_disable();
-  #if STBY
+  #if SLEEP_ENABLE
   HAL_SuspendTick();
   HAL_PWR_EnterSTOPMode(PWR_LOWPOWERREGULATOR_ON, PWR_STOPENTRY_WFI);
   #endif
@@ -254,9 +254,11 @@ void SystemClock_Config(void)
 /* USER CODE BEGIN 4 */
 void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin)
 {
-  // SystemClock_Config();
-  // HAL_ResumeTick();
-  // HAL_NVIC_SystemReset();
+  #if TOUCHPAD_ENABLE
+  SystemClock_Config();
+  HAL_ResumeTick();
+  HAL_NVIC_SystemReset();
+  #endif
 }
 
 void programmingRoutine()
