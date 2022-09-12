@@ -46,30 +46,30 @@ Mounting is done using 3D-printed mounting system and four pairs of M3 bolts and
 
 ### Embedded
 
-Project was made in VSCode using [stm32-for-vscode](https://github.com/bmd-studio/stm32-for-vscode) extension. For this project I used [stm32CubeMX](https://www.st.com/en/development-tools/stm32cubemx.html) for generating initialization code. I've also used drivers for SPI flash memory from this [github repository](https://github.com/nimaltd/w25qxx).
+Project was made in VSCode using [stm32-for-vscode](https://github.com/bmd-studio/stm32-for-vscode) extension. For this project I used [stm32CubeMX](https://www.st.com/en/development-tools/stm32cubemx.html) for generating initialization code. I've also used nimaltd's [drivers for SPI flash memory](https://github.com/nimaltd/w25qxx).
 
 The device must be woken up before every training session, which can be done either by physical button or capacitive touch pad. After that if device haven't detected a pullup within specified time, it goes back to sleep to prolong battery life.
 
-Every pullup is represented with following struct
+Every pullup series is represented with following struct
 
 ```C
 
 typedef struct _entry_struct
 {
-    uint16_t id_;
+    uint32_t id; // unique id
+    unsigned int count:6; // amount of pullups done in the series
 
-    uint8_t hour_;
-    uint8_t minutes_;
-
-    uint8_t month_;
-    uint8_t date_;
-    uint8_t weekday_;
-    uint8_t year_;
-} entry_t
+    // timestamp
+    unsigned int minute:6;
+    unsigned int hour:5;
+    unsigned int day:5;
+    unsigned int month:4;
+    unsigned int year:6;
+}entry_t;
 
 ```
 
-Because each entry's size is 8B and my flash memory is 512kB the maximum amount of pullups that can be saved within the device is over 65 thousand
+Because each entry's size is 8 bytes and my flash memory is 512kB the maximum amount of pullups that can be saved within the device is over 65 thousand
 
 ### USB User Interface
 
@@ -79,5 +79,10 @@ User interface allows the user for easy change of important parameters, debuggin
 
 ### Data analysis
 
-Python script that reads and interprets data acquired from the device. Below are shown examples of generated plots:
-![Plot](pullup_counter_readme/PullupDistributionDuringDay.png)
+Python script that reads and interprets data acquired from the device.
+
+![PullupCounterApp](pullup_counter_readme/PullupCounterApp.png)
+
+Below are shown examples of generated plots:
+![DayPlot](pullup_counter_readme/PullupDistributionDuringDay.png)
+![Heatmap](pullup_counter_readme/heatmap.png)
