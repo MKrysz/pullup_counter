@@ -115,7 +115,12 @@ int main(void)
 
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
+  
   Settings_Read(settings);
+
+  // user interface
+  if(GPIO_GetUsbFlag())
+    CLI_UserInterface();
 
   // Check battery voltage
   // if low voltage detected inform user via 7-seg display
@@ -129,11 +134,8 @@ int main(void)
     Display_disable();
   }
 
-  ADC_Distance_Calibrate();
 
-  // user interface
-  if(GPIO_GetUsbFlag())
-    CLI_UserInterface();
+  ADC_Distance_Calibrate();
 
   // initialize variables
   uint32_t pullupCounter = EEPROM_ReadUINT32(EEPROM_VAR_PULLUP_COUNTER);
