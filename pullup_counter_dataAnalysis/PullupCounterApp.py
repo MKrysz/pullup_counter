@@ -1,3 +1,4 @@
+from time import time
 from pullupSerial import PullupSerial
 from datetime import datetime, timedelta
 import matplotlib.pyplot as plt
@@ -5,8 +6,8 @@ import matplotlib.ticker as mtick
 import pandas as pd
 import numpy as np
 from copy import deepcopy
-import calplot
 import calmap
+
 
 welcomeMsg = \
     "For connecting to the device write connect\n"\
@@ -52,7 +53,7 @@ def plotDayDistribution(data):
 def plotCalendarHeatmap(data):
     data = deepcopy(data)
     data = pd.Series(data.Count.values, data['datetime'])
-    fig, ax = calmap.calendarplot(data)                                                                                                                                   
+    fig, ax = calmap.calendarplot(data)                                                                                                                          
     fig.colorbar(ax[0].get_children()[1], ax=ax.ravel().tolist())  
     fig.suptitle('Number of pull-ups per day heatmap', fontsize=16)
     plt.show()
@@ -92,8 +93,8 @@ def readData():
 
 
 def generalDataAnalysis(data, nrOfDays):
-    startDate = datetime.now() - timedelta(days=nrOfDays)
-    data = data.drop(data[(data.datetime < startDate)].index)
+    # startDate = datetime.now() - timedelta(days=nrOfDays)
+    # data = data.drop(data[(data.datetime < startDate)].index)
     SumOfPullups = data.Count.sum()
     print('Data from the last', nrOfDays, 'days')
     print('Pull-ups done :', SumOfPullups)
@@ -102,16 +103,31 @@ def generalDataAnalysis(data, nrOfDays):
 
 def analyze():
     data = readData()
-    generalDataAnalysis(data, 7)
-    generalDataAnalysis(data, 30)
-    generalDataAnalysis(data, 365)
+    yesterday = datetime.now() - timedelta(days=1)
+    DateWeek = yesterday - timedelta(days=7)
+    DateMonth = yesterday - timedelta(days=30)
+    DateYear = yesterday - timedelta(days=365)
+
+    temp = data[(DateWeek < data.datetime)]
+    temp = temp[temp.datetime < yesterday]
+    generalDataAnalysis(temp, 7)
+    temp = data[(DateMonth < data.datetime)]
+    temp = temp[temp.datetime < yesterday]
+    generalDataAnalysis(temp, 30)
+    temp = data[(DateYear < data.datetime)]
+    temp = temp[temp.datetime < yesterday]
+    generalDataAnalysis(temp, 365)
+    
+    startDate = data['datetime'][0]
+    generalDataAnalysis(data, (datetime.now() - startDate).days)
+
     plotDayDistribution(data)
     plotCalendarHeatmap(data)
 
 def interface():
     while(1):
         cmd = input(welcomeMsg)
-        if cmd == "exit":
+        if (cmd in ("exit", "x")):
             break
         elif(cmd in ("connect", 'con')):
             ConnectAndUpdate()
@@ -128,6 +144,7 @@ def interface():
     return 0
 
 def test():
+    analyze()
     return 0
 
 def main():
