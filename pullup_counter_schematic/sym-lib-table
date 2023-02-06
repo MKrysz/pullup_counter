@@ -1,3 +1,7 @@
 (sym_lib_table
-  (lib (name seven_segment_display)(type Legacy)(uri ${KIPRJMOD}/seven_segment_display.lib)(options "")(descr ""))
+  (lib (name "seven_segment_display")(type "Legacy")(uri "${KIPRJMOD}/seven_segment_display.lib")(options "")(descr ""))
+  (lib (name "pullup_counter_schematic-rescue")(type "Legacy")(uri "${KIPRJMOD}/pullup_counter_schematic-rescue.lib")(options "")(descr ""))
+  (lib (name "REG710")(type "KiCad")(uri "${KIPRJMOD}/REG710.kicad_sym")(options "")(descr ""))
+  (lib (name "STM32G070RB")(type "KiCad")(uri "${KIPRJMOD}/STM32G070RB.kicad_sym")(options "")(descr ""))
+  (lib (name "TCRT5000")(type "KiCad")(uri "${KIPRJMOD}/TCRT5000.kicad_sym")(options "")(descr ""))
 )
