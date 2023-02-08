@@ -22,7 +22,7 @@ TARGET = pullup_counter_code
 # debug build?
 DEBUG = 1
 # optimization
-OPT = -Og
+OPT = -Os
 
 
 #######################################
@@ -73,6 +73,9 @@ Drivers/STM32G0xx_HAL_Driver/Src/stm32g0xx_hal_uart_ex.c \
 Drivers/STM32G0xx_HAL_Driver/Src/stm32g0xx_ll_adc.c \
 Drivers/STM32G0xx_HAL_Driver/Src/stm32g0xx_ll_dma.c \
 Drivers/STM32G0xx_HAL_Driver/Src/stm32g0xx_ll_rcc.c \
+Drivers/ssd1306-stm32HAL-DMA/lib/fonts.c \
+Drivers/ssd1306-stm32HAL-DMA/lib/ssd1306.c \
+Drivers/w25qxx/w25qxx.c \
 FATFS/App/app_fatfs.c \
 FATFS/Target/user_diskio.c \
 Middlewares/Third_Party/FatFs/src/diskio.c \
@@ -155,6 +158,8 @@ C_INCLUDES =  \
 -IDrivers/CMSIS/Include \
 -IDrivers/STM32G0xx_HAL_Driver/Inc \
 -IDrivers/STM32G0xx_HAL_Driver/Inc/Legacy \
+-IDrivers/ssd1306-stm32HAL-DMA/lib \
+-IDrivers/w25qxx \
 -IFATFS/App \
 -IFATFS/Target \
 -IMiddlewares/Third_Party/FatFs/src

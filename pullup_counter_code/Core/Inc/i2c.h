@@ -35,7 +35,7 @@ extern "C" {
 extern I2C_HandleTypeDef hi2c2;
 
 /* USER CODE BEGIN Private defines */
-
+#define MX_SSD1306_HI2C hi2c2
 /* USER CODE END Private defines */
 
 void MX_I2C2_Init(void);

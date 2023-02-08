@@ -77,8 +77,8 @@ void Error_Handler(void);
 #define UsrBtn0_GPIO_Port GPIOD
 #define SD_CS_Pin GPIO_PIN_5
 #define SD_CS_GPIO_Port GPIOD
-#define MEM_CE_Pin GPIO_PIN_5
-#define MEM_CE_GPIO_Port GPIOB
+#define FLASH_CS_Pin GPIO_PIN_5
+#define FLASH_CS_GPIO_Port GPIOB
 #define USB_FLAG_Pin GPIO_PIN_9
 #define USB_FLAG_GPIO_Port GPIOB
 

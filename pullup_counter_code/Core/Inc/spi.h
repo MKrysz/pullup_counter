@@ -37,7 +37,8 @@ extern SPI_HandleTypeDef hspi1;
 extern SPI_HandleTypeDef hspi2;
 
 /* USER CODE BEGIN Private defines */
-
+#define MX_FLASH_HSPI hspi2
+#define MX_SD_HSPI hspi1
 /* USER CODE END Private defines */
 
 void MX_SPI1_Init(void);
