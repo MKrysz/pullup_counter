@@ -22,7 +22,7 @@ TARGET = pullup_counter_code
 # debug build?
 DEBUG = 1
 # optimization
-OPT = -Os
+OPT = -Og
 
 
 #######################################
@@ -37,44 +37,48 @@ BUILD_DIR = build
 # C sources
 C_SOURCES =  \
 Core/Src/adc.c \
-Core/Src/cli.c \
-Core/Src/display.c \
-Core/Src/eeprom.c \
-Core/Src/entry.c \
 Core/Src/gpio.c \
+Core/Src/i2c.c \
 Core/Src/main.c \
 Core/Src/rtc.c \
-Core/Src/settings.c \
 Core/Src/spi.c \
-Core/Src/stm32l0xx_hal_msp.c \
-Core/Src/stm32l0xx_it.c \
-Core/Src/system_stm32l0xx.c \
-Core/Src/tim.c \
+Core/Src/stm32g0xx_hal_msp.c \
+Core/Src/stm32g0xx_it.c \
+Core/Src/system_stm32g0xx.c \
 Core/Src/usart.c \
-Drivers/STM32L0xx_HAL_Driver/Src/stm32l0xx_hal.c \
-Drivers/STM32L0xx_HAL_Driver/Src/stm32l0xx_hal_adc.c \
-Drivers/STM32L0xx_HAL_Driver/Src/stm32l0xx_hal_adc_ex.c \
-Drivers/STM32L0xx_HAL_Driver/Src/stm32l0xx_hal_cortex.c \
-Drivers/STM32L0xx_HAL_Driver/Src/stm32l0xx_hal_dma.c \
-Drivers/STM32L0xx_HAL_Driver/Src/stm32l0xx_hal_exti.c \
-Drivers/STM32L0xx_HAL_Driver/Src/stm32l0xx_hal_flash.c \
-Drivers/STM32L0xx_HAL_Driver/Src/stm32l0xx_hal_flash_ex.c \
-Drivers/STM32L0xx_HAL_Driver/Src/stm32l0xx_hal_flash_ramfunc.c \
-Drivers/STM32L0xx_HAL_Driver/Src/stm32l0xx_hal_gpio.c \
-Drivers/STM32L0xx_HAL_Driver/Src/stm32l0xx_hal_i2c.c \
-Drivers/STM32L0xx_HAL_Driver/Src/stm32l0xx_hal_i2c_ex.c \
-Drivers/STM32L0xx_HAL_Driver/Src/stm32l0xx_hal_pwr.c \
-Drivers/STM32L0xx_HAL_Driver/Src/stm32l0xx_hal_pwr_ex.c \
-Drivers/STM32L0xx_HAL_Driver/Src/stm32l0xx_hal_rcc.c \
-Drivers/STM32L0xx_HAL_Driver/Src/stm32l0xx_hal_rcc_ex.c \
-Drivers/STM32L0xx_HAL_Driver/Src/stm32l0xx_hal_rtc.c \
-Drivers/STM32L0xx_HAL_Driver/Src/stm32l0xx_hal_rtc_ex.c \
-Drivers/STM32L0xx_HAL_Driver/Src/stm32l0xx_hal_spi.c \
-Drivers/STM32L0xx_HAL_Driver/Src/stm32l0xx_hal_tim.c \
-Drivers/STM32L0xx_HAL_Driver/Src/stm32l0xx_hal_tim_ex.c \
-Drivers/STM32L0xx_HAL_Driver/Src/stm32l0xx_hal_uart.c \
-Drivers/STM32L0xx_HAL_Driver/Src/stm32l0xx_hal_uart_ex.c \
-Drivers/w25qxx/w25qxx.c
+Drivers/STM32G0xx_HAL_Driver/Src/stm32g0xx_hal.c \
+Drivers/STM32G0xx_HAL_Driver/Src/stm32g0xx_hal_adc.c \
+Drivers/STM32G0xx_HAL_Driver/Src/stm32g0xx_hal_adc_ex.c \
+Drivers/STM32G0xx_HAL_Driver/Src/stm32g0xx_hal_cortex.c \
+Drivers/STM32G0xx_HAL_Driver/Src/stm32g0xx_hal_dma.c \
+Drivers/STM32G0xx_HAL_Driver/Src/stm32g0xx_hal_dma_ex.c \
+Drivers/STM32G0xx_HAL_Driver/Src/stm32g0xx_hal_exti.c \
+Drivers/STM32G0xx_HAL_Driver/Src/stm32g0xx_hal_flash.c \
+Drivers/STM32G0xx_HAL_Driver/Src/stm32g0xx_hal_flash_ex.c \
+Drivers/STM32G0xx_HAL_Driver/Src/stm32g0xx_hal_gpio.c \
+Drivers/STM32G0xx_HAL_Driver/Src/stm32g0xx_hal_i2c.c \
+Drivers/STM32G0xx_HAL_Driver/Src/stm32g0xx_hal_i2c_ex.c \
+Drivers/STM32G0xx_HAL_Driver/Src/stm32g0xx_hal_pwr.c \
+Drivers/STM32G0xx_HAL_Driver/Src/stm32g0xx_hal_pwr_ex.c \
+Drivers/STM32G0xx_HAL_Driver/Src/stm32g0xx_hal_rcc.c \
+Drivers/STM32G0xx_HAL_Driver/Src/stm32g0xx_hal_rcc_ex.c \
+Drivers/STM32G0xx_HAL_Driver/Src/stm32g0xx_hal_rtc.c \
+Drivers/STM32G0xx_HAL_Driver/Src/stm32g0xx_hal_rtc_ex.c \
+Drivers/STM32G0xx_HAL_Driver/Src/stm32g0xx_hal_spi.c \
+Drivers/STM32G0xx_HAL_Driver/Src/stm32g0xx_hal_spi_ex.c \
+Drivers/STM32G0xx_HAL_Driver/Src/stm32g0xx_hal_tim.c \
+Drivers/STM32G0xx_HAL_Driver/Src/stm32g0xx_hal_tim_ex.c \
+Drivers/STM32G0xx_HAL_Driver/Src/stm32g0xx_hal_uart.c \
+Drivers/STM32G0xx_HAL_Driver/Src/stm32g0xx_hal_uart_ex.c \
+Drivers/STM32G0xx_HAL_Driver/Src/stm32g0xx_ll_adc.c \
+Drivers/STM32G0xx_HAL_Driver/Src/stm32g0xx_ll_dma.c \
+Drivers/STM32G0xx_HAL_Driver/Src/stm32g0xx_ll_rcc.c \
+FATFS/App/app_fatfs.c \
+FATFS/Target/user_diskio.c \
+Middlewares/Third_Party/FatFs/src/diskio.c \
+Middlewares/Third_Party/FatFs/src/ff.c \
+Middlewares/Third_Party/FatFs/src/ff_gen_drv.c \
+Middlewares/Third_Party/FatFs/src/option/syscall.c
 
 
 CPP_SOURCES = \
@@ -82,7 +86,7 @@ CPP_SOURCES = \
 
 # ASM sources
 ASM_SOURCES =  \
-startup_stm32l051xx.s
+startup_stm32g070xx.s
 
 
 
@@ -93,7 +97,7 @@ PREFIX = arm-none-eabi-
 POSTFIX = "
 # The gcc compiler bin path can be either defined in make command via GCC_PATH variable (> make GCC_PATH=xxx)
 # either it can be added to the PATH environment variable.
-GCC_PATH="c:/Users/macie/AppData/Roaming/Code/User/globalStorage/bmd.stm32-for-vscode/@xpack-dev-tools/arm-none-eabi-gcc/10.3.1-2.1.1/.content/bin
+GCC_PATH="/home/maciej/.config/Code/User/globalStorage/bmd.stm32-for-vscode/@xpack-dev-tools/arm-none-eabi-gcc/11.3.1-1.1.2/.content/bin
 ifdef GCC_PATH
 CXX = $(GCC_PATH)/$(PREFIX)g++$(POSTFIX)
 CC = $(GCC_PATH)/$(PREFIX)gcc$(POSTFIX)
@@ -131,13 +135,13 @@ AS_DEFS =
 
 # C defines
 C_DEFS =  \
--DSTM32L051xx \
+-DSTM32G070xx \
 -DUSE_HAL_DRIVER
 
 
 # CXX defines
 CXX_DEFS =  \
--DSTM32L051xx \
+-DSTM32G070xx \
 -DUSE_HAL_DRIVER
 
 
@@ -147,11 +151,13 @@ AS_INCLUDES = \
 # C includes
 C_INCLUDES =  \
 -ICore/Inc \
--IDrivers/CMSIS/Device/ST/STM32L0xx/Include \
+-IDrivers/CMSIS/Device/ST/STM32G0xx/Include \
 -IDrivers/CMSIS/Include \
--IDrivers/STM32L0xx_HAL_Driver/Inc \
--IDrivers/STM32L0xx_HAL_Driver/Inc/Legacy \
--IDrivers/w25qxx
+-IDrivers/STM32G0xx_HAL_Driver/Inc \
+-IDrivers/STM32G0xx_HAL_Driver/Inc/Legacy \
+-IFATFS/App \
+-IFATFS/Target \
+-IMiddlewares/Third_Party/FatFs/src
 
 
 
@@ -180,7 +186,7 @@ CXXFLAGS += -MMD -MP -MF"$(@:%.o=%.d)"
 # LDFLAGS
 #######################################
 # link script
-LDSCRIPT = STM32L051C8Tx_FLASH.ld
+LDSCRIPT = STM32G070RBTx_FLASH.ld
 
 # libraries
 LIBS = -lc -lm -lnosys 
@@ -239,19 +245,19 @@ $(BUILD_DIR):
 # flash
 #######################################
 flash: $(BUILD_DIR)/$(TARGET).elf
-	"C:/USERS/MACIE/APPDATA/ROAMING/CODE/USER/GLOBALSTORAGE/BMD.STM32-FOR-VSCODE/@XPACK-DEV-TOOLS/OPENOCD/0.11.0-2.1/.CONTENT/BIN/OPENOCD.EXE" -f ./openocd.cfg -c "program $(BUILD_DIR)/$(TARGET).elf verify reset exit"
+	"/home/maciej/.config/Code/User/globalStorage/bmd.stm32-for-vscode/@xpack-dev-tools/openocd/0.12.0-1.1/.content/bin/openocd" -f ./openocd.cfg -c "program $(BUILD_DIR)/$(TARGET).elf verify reset exit"
 
 #######################################
 # erase
 #######################################
 erase: $(BUILD_DIR)/$(TARGET).elf
-	"C:/USERS/MACIE/APPDATA/ROAMING/CODE/USER/GLOBALSTORAGE/BMD.STM32-FOR-VSCODE/@XPACK-DEV-TOOLS/OPENOCD/0.11.0-2.1/.CONTENT/BIN/OPENOCD.EXE" -f ./openocd.cfg -c "init; reset halt; stm32l0x mass_erase 0; exit"
+	"/home/maciej/.config/Code/User/globalStorage/bmd.stm32-for-vscode/@xpack-dev-tools/openocd/0.12.0-1.1/.content/bin/openocd" -f ./openocd.cfg -c "init; reset halt; stm32g0x mass_erase 0; exit"
 
 #######################################
 # clean up
 #######################################
 clean:
-	cmd /c rd /s /q $(BUILD_DIR)
+	-rm -fR $(BUILD_DIR)
 
 #######################################
 # custom makefile rules

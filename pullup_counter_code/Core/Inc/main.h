@@ -7,13 +7,12 @@
   ******************************************************************************
   * @attention
   *
-  * <h2><center>&copy; Copyright (c) 2022 STMicroelectronics.
-  * All rights reserved.</center></h2>
+  * Copyright (c) 2023 STMicroelectronics.
+  * All rights reserved.
   *
-  * This software component is licensed by ST under BSD 3-Clause license,
-  * the "License"; You may not use this file except in compliance with the
-  * License. You may obtain a copy of the License at:
-  *                        opensource.org/licenses/BSD-3-Clause
+  * This software is licensed under terms that can be found in the LICENSE file
+  * in the root directory of this software component.
+  * If no LICENSE file comes with this software, it is provided AS-IS.
   *
   ******************************************************************************
   */
@@ -28,7 +27,7 @@ extern "C" {
 #endif
 
 /* Includes ------------------------------------------------------------------*/
-#include "stm32l0xx_hal.h"
+#include "stm32g0xx_hal.h"
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
@@ -58,42 +57,31 @@ void Error_Handler(void);
 /* USER CODE END EFP */
 
 /* Private defines -----------------------------------------------------------*/
-#define USB_FLAG_Pin GPIO_PIN_13
-#define USB_FLAG_GPIO_Port GPIOC
-#define DISTANCE_Pin GPIO_PIN_0
-#define DISTANCE_GPIO_Port GPIOA
-#define dis_sel_0_Pin GPIO_PIN_4
-#define dis_sel_0_GPIO_Port GPIOA
-#define CE_Pin GPIO_PIN_0
-#define CE_GPIO_Port GPIOB
-#define BAT_SENSE_Pin GPIO_PIN_1
-#define BAT_SENSE_GPIO_Port GPIOB
-#define dis_sel_1_Pin GPIO_PIN_11
-#define dis_sel_1_GPIO_Port GPIOB
-#define dis_c_Pin GPIO_PIN_12
-#define dis_c_GPIO_Port GPIOB
-#define dis_e_Pin GPIO_PIN_13
-#define dis_e_GPIO_Port GPIOB
-#define dis_d_Pin GPIO_PIN_14
-#define dis_d_GPIO_Port GPIOB
-#define dis_g_Pin GPIO_PIN_15
-#define dis_g_GPIO_Port GPIOB
-#define dis_a_Pin GPIO_PIN_8
-#define dis_a_GPIO_Port GPIOA
-#define dis_b_Pin GPIO_PIN_9
-#define dis_b_GPIO_Port GPIOA
-#define dis_f_Pin GPIO_PIN_10
-#define dis_f_GPIO_Port GPIOA
-#define BAT_SENSE_EN_Pin GPIO_PIN_15
-#define BAT_SENSE_EN_GPIO_Port GPIOA
-#define START_Pin GPIO_PIN_7
-#define START_GPIO_Port GPIOB
-#define START_EXTI_IRQn EXTI4_15_IRQn
-#define TouchPin_Pin GPIO_PIN_8
-#define TouchPin_GPIO_Port GPIOB
-#define TouchPin_EXTI_IRQn EXTI4_15_IRQn
-#define DISTANCE_EN_Pin GPIO_PIN_9
-#define DISTANCE_EN_GPIO_Port GPIOB
+#define OLED_RST_Pin GPIO_PIN_1
+#define OLED_RST_GPIO_Port GPIOC
+#define PWR_EN_Pin GPIO_PIN_2
+#define PWR_EN_GPIO_Port GPIOC
+#define PROX_EN_Pin GPIO_PIN_3
+#define PROX_EN_GPIO_Port GPIOC
+#define PROX_OUT_Pin GPIO_PIN_0
+#define PROX_OUT_GPIO_Port GPIOA
+#define BAT_RAW_Pin GPIO_PIN_1
+#define BAT_RAW_GPIO_Port GPIOA
+#define UsrBtn3_Pin GPIO_PIN_1
+#define UsrBtn3_GPIO_Port GPIOD
+#define UsrBtn2_Pin GPIO_PIN_2
+#define UsrBtn2_GPIO_Port GPIOD
+#define UsrBtn1_Pin GPIO_PIN_3
+#define UsrBtn1_GPIO_Port GPIOD
+#define UsrBtn0_Pin GPIO_PIN_4
+#define UsrBtn0_GPIO_Port GPIOD
+#define SD_CS_Pin GPIO_PIN_5
+#define SD_CS_GPIO_Port GPIOD
+#define MEM_CE_Pin GPIO_PIN_5
+#define MEM_CE_GPIO_Port GPIOB
+#define USB_FLAG_Pin GPIO_PIN_9
+#define USB_FLAG_GPIO_Port GPIOB
+
 /* USER CODE BEGIN Private defines */
 
 /* USER CODE END Private defines */
@@ -103,5 +91,3 @@ void Error_Handler(void);
 #endif
 
 #endif /* __MAIN_H */
-
-/************************ (C) COPYRIGHT STMicroelectronics *****END OF FILE****/
