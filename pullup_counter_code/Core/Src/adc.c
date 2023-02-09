@@ -134,4 +134,84 @@ void HAL_ADC_MspDeInit(ADC_HandleTypeDef* adcHandle)
 
 /* USER CODE BEGIN 1 */
 
+uint32_t ambientDistance = 0;
+
+
+/**
+ * @brief returns raw abolute reading from proximity sensor
+ * 
+ * @return uint32_t 
+ */
+uint32_t _ADC_DistanceRaw()
+{
+  HAL_GPIO_WritePin(PROX_EN_GPIO_Port, PROX_EN_Pin, 1);
+  HAL_Delay(10);
+  HAL_ADC_Start(&hadc1);
+  while(HAL_ADC_PollForConversion(&hadc1, HAL_MAX_DELAY) != HAL_OK);
+  uint32_t raw = HAL_ADC_GetValue(&hadc1);
+  HAL_GPIO_WritePin(PROX_EN_GPIO_Port, PROX_EN_Pin, 0);
+  return raw;
+}
+
+/**
+ * @brief returns relative reading from proximity sensor
+ * 
+ * @return uint32_t differnce between ambient and current voltage
+ */
+int32_t ADC_MeasureDistance()
+{
+  uint32_t raw = _ADC_DistanceRaw();
+  return (int32_t) (raw - ambientDistance);
+}
+
+/**
+ * @brief recalibrates ambient value
+ * 
+ */
+void ADC_Distance_Calibrate()
+{
+  const size_t bufferSize = 64;
+  uint32_t result = 0;
+  for (size_t i = 0; i < bufferSize; i++){
+    result += _ADC_DistanceRaw();
+  }
+  ambientDistance = result>>6;
+}
+
+/**
+ * @brief 
+ * 
+ * @return uint32_t battery voltage in mV
+ */
+uint32_t ADC_MeasureBattery()
+{
+  // TODO implement multichannel ADC measurements 
+  // //TODO: calculate multiplier
+  // const float multiplier = 0.1F;
+  // HAL_GPIO_WritePin(BAT_SENSE_EN_GPIO_Port, BAT_SENSE_EN_Pin, 1);
+  // HAL_ADC_Start(&hadc);
+  // HAL_ADC_PollForConversion(&hadc, HAL_MAX_DELAY);
+  // uint16_t raw = HAL_ADC_GetValue(&hadc);
+  // return (float)(raw) * multiplier;
+  return 3000;
+}
+
+/**
+ * @brief 
+ * 
+ * @return uint32_t backup battery voltage in mV
+ */
+uint32_t ADC_MeasureBackupBattery()
+{
+  // TODO implement multichannel ADC measurements 
+  // //TODO: calculate multiplier
+  // const float multiplier = 0.1F;
+  // HAL_GPIO_WritePin(BAT_SENSE_EN_GPIO_Port, BAT_SENSE_EN_Pin, 1);
+  // HAL_ADC_Start(&hadc);
+  // HAL_ADC_PollForConversion(&hadc, HAL_MAX_DELAY);
+  // uint16_t raw = HAL_ADC_GetValue(&hadc);
+  // return (float)(raw) * multiplier;
+  return 3000;
+}
+
 /* USER CODE END 1 */

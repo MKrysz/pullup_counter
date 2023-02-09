@@ -136,4 +136,55 @@ void HAL_RTC_MspDeInit(RTC_HandleTypeDef* rtcHandle)
 
 /* USER CODE BEGIN 1 */
 
+/**
+ * @brief converts HAL's weekday to a readable strings
+ * 
+ * @param weekday int from 1 to 7 where 1 is Monday and 7 is Saturday
+ * @param dst string with a size of at least 12 in witch return value will be written to
+ */
+int RTC_WeekDay2String(uint8_t weekday, char* dst)
+{
+  char truthTable[7][12] = {
+    "Monday",
+    "Tuesday",
+    "Wednesday",
+    "Thursday",
+    "Friday",
+    "Saturday",
+    "Sunday"
+  };
+  size_t i;
+  for(i = 0; truthTable[weekday-1][i] != '\0'; i++){
+    dst[i] = truthTable[weekday-1][i];
+  }
+  dst[i] = 0;
+  return i;
+}
+
+/**
+ * @brief prints current time and date from RTC
+ * 
+ */
+int RTC_ToString(char *dst)
+{
+  RTC_TimeTypeDef sTime;
+  RTC_DateTypeDef sDate;
+
+  size_t i = 0;
+
+  HAL_RTC_GetTime(&hrtc, &sTime, FORMAT_BIN);
+  HAL_RTC_GetDate(&hrtc, &sDate, FORMAT_BIN);
+
+  i += sprintf(dst+i, "%u:%u:%u\n", 
+    sTime.Hours, sTime.Minutes, sTime.Seconds);
+  
+  i += sprintf(dst+i, "%u/%u/20%u\n",
+    sDate.Date, sDate.Month, sDate.Year);
+
+  i += sprintf(dst, "Weekday = ");
+
+  i += RTC_WeekDay2String(sDate.WeekDay, dst);
+  return i;
+}
+
 /* USER CODE END 1 */

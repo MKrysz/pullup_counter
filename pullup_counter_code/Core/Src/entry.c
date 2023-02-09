@@ -71,13 +71,26 @@ void ENTRY_PrintRawFormat()
 }
 
 /**
- * @brief prints entry to the console in machine-friendly format
+ * @brief prints entry to the console in csv-friendly format
  * 
  * @param entry 
  */
 void ENTRY_PrintRaw(entry_t *entry)
 {
     printf("%lu,%u,%u,%u,%u,%u,%u\n", 
+    entry->id, entry->hour, entry->minute, entry->day,
+    entry->month, entry->year, entry->count);
+}
+
+/**
+ * @brief prints entry to the string in csv-friendly format
+ * 
+ * @param entry 
+ * @param str 
+ */
+void ENTRY_ToStrings(entry_t *entry, char* str)
+{
+    sprintf(str, "%lu,%u,%u,%u,%u,%u,%u\n", 
     entry->id, entry->hour, entry->minute, entry->day,
     entry->month, entry->year, entry->count);
 }

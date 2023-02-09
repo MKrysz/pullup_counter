@@ -23,6 +23,7 @@ bool ENTRY_IsEqual(entry_t* left, entry_t* right);
 
 void ENTRY_CreateFromString(entry_t* entry, char* str);
 
+void ENTRY_ToStrings(entry_t *entry, char* str);
 void ENTRY_Print(entry_t* entry);
 void ENTRY_PrintRawFormat();
 void ENTRY_PrintRaw(entry_t *entry);

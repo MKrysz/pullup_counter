@@ -42,6 +42,8 @@ void MX_RTC_Init(void);
 
 /* USER CODE BEGIN Prototypes */
 
+int RTC_ToString(char *dst);
+int RTC_WeekDay2String(uint8_t weekday, char* dst);
 /* USER CODE END Prototypes */
 
 #ifdef __cplusplus
