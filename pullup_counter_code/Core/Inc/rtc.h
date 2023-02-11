@@ -36,6 +36,8 @@ extern RTC_HandleTypeDef hrtc;
 
 /* USER CODE BEGIN Private defines */
 
+extern RTC_DateTypeDef sDate;
+extern RTC_TimeTypeDef sTime;
 /* USER CODE END Private defines */
 
 void MX_RTC_Init(void);
@@ -44,6 +46,8 @@ void MX_RTC_Init(void);
 
 int RTC_ToString(char *dst);
 int RTC_WeekDay2String(uint8_t weekday, char* dst);
+void RTC_SetCurrentTime();
+void RTC_ReadTime();
 /* USER CODE END Prototypes */
 
 #ifdef __cplusplus

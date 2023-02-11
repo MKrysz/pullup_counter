@@ -19,16 +19,28 @@
 /* Includes ------------------------------------------------------------------*/
 #include "main.h"
 #include "adc.h"
+#include "dma.h"
 #include "app_fatfs.h"
 #include "i2c.h"
 #include "rtc.h"
 #include "spi.h"
+#include "tim.h"
 #include "usart.h"
 #include "gpio.h"
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
+#include <string.h>
+#include <stdbool.h>
+#include <stdio.h>
 
+#include "display.h"
+#include "cli.h"
+#include "entry.h"
+#include "settings.h"
+#include "config.h"
+#include "flash.h"
+#include "w25qxx.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -48,13 +60,13 @@
 /* Private variables ---------------------------------------------------------*/
 
 /* USER CODE BEGIN PV */
-
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
 void SystemClock_Config(void);
 /* USER CODE BEGIN PFP */
-
+void programmingRoutine();
+uint32_t measurePullupTime();
 /* USER CODE END PFP */
 
 /* Private user code ---------------------------------------------------------*/
@@ -90,6 +102,7 @@ int main(void)
 
   /* Initialize all configured peripherals */
   MX_GPIO_Init();
+  MX_DMA_Init();
   MX_ADC1_Init();
   MX_I2C2_Init();
   MX_RTC_Init();
@@ -99,12 +112,91 @@ int main(void)
   if (MX_FATFS_Init() != APP_OK) {
     Error_Handler();
   }
+  MX_TIM6_Init();
   /* USER CODE BEGIN 2 */
-
+  FLASH_Init();
+  DISPLAY_Init();
+  HAL_TIM_Base_Start(&DISPLAY_HTIM);
   /* USER CODE END 2 */
 
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
+
+  FLASH_SettingsRead(&settings);
+  FLASH_VarsRead(&eepromVars);
+  
+  #ifdef PROGRAM_ROUTINE
+  programmingRoutine();
+  #endif
+
+  // check battery voltage and warn of low voltage
+  if(ADC_MeasureBattery() < settings.batteryVoltageThreshold){
+    Display_SetMode(DispLowVoltage);
+    HAL_Delay(3000);
+  }
+
+  if(GetUsbFlag()){
+    Display_SetMode(DispUSB);
+    // CLI_StartUserInterface();
+  }
+
+  ADC_DistanceCalibrate();
+
+  uint8_t currentCount = 0;
+  RTC_ReadTime();
+  entry_t lastEntry;
+  FLASH_EntryRead(&lastEntry, eepromVars.lastDdr);
+  if(lastEntry.day != sDate.Date || lastEntry.month != sDate.Month || lastEntry.year != sDate.Year){
+      eepromVars.pullup_counter = 0;
+  }
+  Display_SetMode(DispCounting);
+
+  // count pull-ups loop
+  uint32_t lastDetectedPullup = HAL_GetTick(); 
+  while(HAL_GetTick()-lastDetectedPullup < settings.timeTillShutdown){
+    uint32_t timeDelta = measurePullupTime(); 
+    if(settings.pullupTimeMin < timeDelta && timeDelta < settings.pullupTimeMax){
+      lastDetectedPullup = HAL_GetTick();
+      currentCount++;
+      eepromVars.pullup_counter++;
+    } 
+  }
+  
+  if(currentCount != 0){
+
+    uint32_t id = eepromVars.lastDdr;
+    entry_t entry;
+    entry.id = id;
+    entry.count = currentCount;
+
+    entry.year = sDate.Year;
+    entry.month = sDate.Month;
+    entry.day = sDate.Date;
+    
+    entry.hour = sTime.Hours;
+    entry.minute = sTime.Minutes;
+    eepromVars.lastDdr++;
+
+    FLASH_EntryWrite(&entry, eepromVars.lastDdr);
+    entry_t entryTemp;
+    FLASH_EntryRead(&entryTemp, eepromVars.lastDdr);
+    if(ENTRY_IsEqual(&entry, &entryTemp)){
+      Display_SetMode(DispError);
+    }
+  }
+
+  FLASH_VarsWrite(&eepromVars);
+  FLASH_SettingsWrite(&settings);
+
+  #ifdef SLEEP_ENABLE
+  HAL_SuspendTick();
+  HAL_PWR_EnterSTOPMode(PWR_LOWPOWERREGULATOR_ON, PWR_STOPENTRY_WFI);
+  #endif
+
+  #ifdef SHUTDOWN_ENABLE
+  HAL_GPIO_WritePin(PWR_EN_GPIO_Port, PWR_EN_Pin, 0);
+  #endif
+
   while (1)
   {
     /* USER CODE END WHILE */
@@ -165,6 +257,39 @@ void SystemClock_Config(void)
 
 /* USER CODE BEGIN 4 */
 
+void programmingRoutine()
+{
+  #ifdef SET_RTC
+    RTC_SetCurrentTime();
+  #endif
+
+  #ifdef ERASE_FLASH
+    W25qxx_EraseChip();
+  #endif
+
+  #ifdef RESET_SETTINGS
+    settings.distanceThreshold = -250;
+    settings.pullupTimeMax = 2000;
+    settings.pullupTimeMin = 300;
+    settings.timeTillShutdown = 7000;
+    settings.batteryVoltageThreshold = 2650;
+  #endif
+
+  #ifdef RESET_EEPROM
+    eepromVars.lastDdr = 0;
+    eepromVars.pullup_counter = 0;
+  #endif
+
+}
+
+uint32_t measurePullupTime()
+{
+  uint32_t pullupStart = HAL_GetTick();
+  while(ADC_MeasureDistance() < settings.distanceThreshold);
+  uint32_t pullupEnd = HAL_GetTick();
+  uint32_t timeDelta = pullupEnd - pullupStart;
+  return timeDelta;
+}
 /* USER CODE END 4 */
 
 /**

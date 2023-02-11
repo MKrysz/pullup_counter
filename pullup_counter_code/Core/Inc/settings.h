@@ -10,13 +10,23 @@ typedef struct _settings_struct{
     uint32_t pullupTimeMax;
      int32_t distanceThreshold;
     uint32_t batteryVoltageThreshold;
-    uint32_t startOfNextDay; 
+    // uint32_t startOfNextDay; 
 }settings_t;
 
 typedef struct {
     uint32_t lastDdr;
     uint32_t pullup_counter;
-} eepromVals_t;
+} eepromVars_t;
+
+typedef struct {
+    bool SD_detected:1;
+    bool prox_en:1;
+    bool SD_autoUpdate:1;
+} flags_t;
+
+extern settings_t settings;
+extern eepromVars_t eepromVars;
+extern volatile flags_t flags; 
 
 void Settings_Print(settings_t *settings);
 

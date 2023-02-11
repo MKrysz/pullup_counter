@@ -35,7 +35,7 @@ extern "C" {
 extern UART_HandleTypeDef huart3;
 
 /* USER CODE BEGIN Private defines */
-
+#define CLI_HUART huart3
 /* USER CODE END Private defines */
 
 void MX_USART3_UART_Init(void);

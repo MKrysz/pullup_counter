@@ -21,7 +21,8 @@
 #include "rtc.h"
 
 /* USER CODE BEGIN 0 */
-
+#include <stdio.h>
+#include "compileTime.h"
 /* USER CODE END 0 */
 
 RTC_HandleTypeDef hrtc;
@@ -136,11 +137,16 @@ void HAL_RTC_MspDeInit(RTC_HandleTypeDef* rtcHandle)
 
 /* USER CODE BEGIN 1 */
 
+RTC_DateTypeDef sDate = {0};
+RTC_TimeTypeDef sTime = {0};
+
 /**
  * @brief converts HAL's weekday to a readable strings
  * 
  * @param weekday int from 1 to 7 where 1 is Monday and 7 is Saturday
  * @param dst string with a size of at least 12 in witch return value will be written to
+ * 
+ * @returns nr of characters written
  */
 int RTC_WeekDay2String(uint8_t weekday, char* dst)
 {
@@ -167,13 +173,7 @@ int RTC_WeekDay2String(uint8_t weekday, char* dst)
  */
 int RTC_ToString(char *dst)
 {
-  RTC_TimeTypeDef sTime;
-  RTC_DateTypeDef sDate;
-
   size_t i = 0;
-
-  HAL_RTC_GetTime(&hrtc, &sTime, FORMAT_BIN);
-  HAL_RTC_GetDate(&hrtc, &sDate, FORMAT_BIN);
 
   i += sprintf(dst+i, "%u:%u:%u\n", 
     sTime.Hours, sTime.Minutes, sTime.Seconds);
@@ -187,4 +187,31 @@ int RTC_ToString(char *dst)
   return i;
 }
 
+/**
+ * @brief sets RTC time and date to compile time and date
+ * 
+ */
+void RTC_SetCurrentTime()
+{
+  sDate.Date = __TIME_DAYS__;
+  sDate.Month = __TIME_MONTH__;
+  sDate.Year = __TIME_YEARS__ - 2000;
+  sDate.WeekDay = RTC_WEEKDAY_WEDNESDAY;
+  HAL_RTC_SetDate(&hrtc, &sDate, FORMAT_BIN);
+
+  sTime.Hours = __TIME_HOURS__;
+  sTime.Minutes = __TIME_MINUTES__;
+  sTime.Seconds = __TIME_SECONDS__;
+  HAL_RTC_SetTime(&hrtc, &sTime, FORMAT_BIN);
+}
+
+/**
+ * @brief reads current time and date from RTC and stores result in global sTime and sDate variables
+ * 
+ */
+void RTC_ReadTime()
+{
+  HAL_RTC_GetTime(&hrtc, &sTime, RTC_FORMAT_BIN);
+  HAL_RTC_GetDate(&hrtc, &sDate, RTC_FORMAT_BIN);
+}
 /* USER CODE END 1 */

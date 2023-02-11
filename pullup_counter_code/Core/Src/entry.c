@@ -18,7 +18,7 @@ void ENTRY_CreateFromString(entry_t* entry, char* str)
     uint32_t month;
     uint32_t year;
     uint32_t count;
-    sscanf(str, "%lu %u %u %u %u %u %u", &id, &hour, &min,
+    sscanf(str, "%lu,%lu,%lu,%lu,%lu,%lu,%lu", &id, &hour, &min,
         &day, &month, &year, &count);
     entry->id = id;
     entry->hour = hour;

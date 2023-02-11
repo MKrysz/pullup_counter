@@ -37,14 +37,22 @@ BUILD_DIR = build
 # C sources
 C_SOURCES =  \
 Core/Src/adc.c \
+Core/Src/cli.c \
+Core/Src/display.c \
+Core/Src/dma.c \
+Core/Src/entry.c \
+Core/Src/flash.c \
 Core/Src/gpio.c \
 Core/Src/i2c.c \
+Core/Src/images.c \
 Core/Src/main.c \
 Core/Src/rtc.c \
+Core/Src/settings.c \
 Core/Src/spi.c \
 Core/Src/stm32g0xx_hal_msp.c \
 Core/Src/stm32g0xx_it.c \
 Core/Src/system_stm32g0xx.c \
+Core/Src/tim.c \
 Core/Src/usart.c \
 Drivers/STM32G0xx_HAL_Driver/Src/stm32g0xx_hal.c \
 Drivers/STM32G0xx_HAL_Driver/Src/stm32g0xx_hal_adc.c \

@@ -41,7 +41,7 @@ extern ADC_HandleTypeDef hadc1;
 void MX_ADC1_Init(void);
 
 /* USER CODE BEGIN Prototypes */
-
+void ADC_Init();
 uint32_t ADC_MeasureBattery();
 uint32_t ADC_MeasureBackupBattery();
 int32_t ADC_MeasureDistance();

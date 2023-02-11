@@ -117,7 +117,7 @@ void HAL_UART_MspDeInit(UART_HandleTypeDef* uartHandle)
 int _write(int fd, char* ptr, int len) {
   HAL_StatusTypeDef hstatus;
 
-  hstatus = HAL_UART_Transmit(&huart2, (uint8_t *) ptr, len, HAL_MAX_DELAY);
+  hstatus = HAL_UART_Transmit(&CLI_HUART, (uint8_t *) ptr, len, HAL_MAX_DELAY);
   if (hstatus == HAL_OK)
     return len;
   return -1;

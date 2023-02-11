@@ -1,6 +1,11 @@
 #include "settings.h"
 #include <stdio.h>
 
+
+settings_t settings = {0};
+eepromVars_t eepromVars = {0};
+volatile flags_t flags = {0}; 
+
 /**
  * @brief prints settings via the console
  * 
@@ -13,5 +18,5 @@ void Settings_Print(settings_t *settings)
     printf("Pullup time min = %lu\n", settings->pullupTimeMin);
     printf("Time till shutdown = %lu\n", settings->timeTillShutdown);
     printf("Battery voltage threshold = %lu\n", settings->batteryVoltageThreshold);
-    printf("Start of next day = %lu\n", settings->startOfNextDay);
+    // printf("Start of next day = %lu\n", settings->startOfNextDay);
 }
