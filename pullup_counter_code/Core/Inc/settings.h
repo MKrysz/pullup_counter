@@ -4,6 +4,7 @@
 #include <stdbool.h>
 #include <stdint.h>
 
+
 typedef struct _settings_struct{
     uint32_t timeTillShutdown;
     uint32_t pullupTimeMin;
@@ -24,9 +25,16 @@ typedef struct {
     bool SD_autoUpdate:1;
 } flags_t;
 
+typedef struct {
+    uint16_t wholeTraining;
+    uint8_t oneSeries;
+} records_t;
+
+
 extern settings_t settings;
 extern eepromVars_t eepromVars;
 extern volatile flags_t flags; 
+extern records_t records;
 
 void Settings_Print(settings_t *settings);
 

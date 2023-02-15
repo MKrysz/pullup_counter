@@ -86,6 +86,7 @@ Drivers/ssd1306-stm32HAL-DMA/lib/ssd1306.c \
 Drivers/w25qxx/w25qxx.c \
 FATFS/App/app_fatfs.c \
 FATFS/Target/user_diskio.c \
+FATFS/Target/user_diskio_spi.c \
 Middlewares/Third_Party/FatFs/src/diskio.c \
 Middlewares/Third_Party/FatFs/src/ff.c \
 Middlewares/Third_Party/FatFs/src/ff_gen_drv.c \

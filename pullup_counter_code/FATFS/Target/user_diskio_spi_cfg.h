@@ -1,0 +1,2 @@
+
+#define SD_SPI_HANDLE MX_SD_HSPI

@@ -6,20 +6,19 @@
 #include "entry.h"
 #include "settings.h"
 
-typedef enum {
-    LastDdr=1,
-    pullupCounter=2,
-} flash_VarDdr_t;
-
 void FLASH_Init();
 
 void FLASH_Write(uint8_t *pBuffer, uint32_t ddr, uint32_t len);
 void FLASH_Read(uint8_t *pBuffer, uint32_t ddr, uint32_t len);
 void FLASH_Erase(uint32_t ddr, uint32_t len);
 
+void FLASH_EEPROM_Write(uint8_t * pBuffer, uint32_t Sector, uint32_t len);
+void FLASH_EEPROM_Read(uint8_t * pBuffer, uint32_t Sector, uint32_t len);
+
 void FLASH_EntryWrite(entry_t *entry, uint32_t ddr);
 void FLASH_EntryRead(entry_t *entry, uint32_t entryDdr);
 void FLASH_EntryDelete(uint32_t entryDdr);
+
 
 void FLASH_VarsRead(eepromVars_t *eepromVars);
 void FLASH_VarsWrite(eepromVars_t *eepromVars);

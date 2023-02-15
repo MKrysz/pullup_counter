@@ -9,7 +9,7 @@ typedef struct {
     size_t size;
     uint8_t Xsize;
     uint8_t Ysize;
-    const uint8_t **data;
+    const uint8_t *data;
 } image_t;
 
 typedef struct {
@@ -20,6 +20,7 @@ typedef struct {
 } animation_t;
 
 void Image_Draw(uint8_t x, uint8_t y, image_t image);
+void Image_DrawNeedle(uint8_t x, uint8_t y, size_t idx);
 
 extern image_t img_meter;
 extern image_t img_clk;

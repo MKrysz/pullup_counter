@@ -2,6 +2,7 @@
 #include "flash.h"
 
 #include <stdio.h>
+#include <stdlib.h>
 
 #include "w25qxx.h"
 
@@ -9,18 +10,67 @@
 #define FLASH_SECTOR_SIZE (4096) //sectorSize in bytes
 #define FLASH_PAGES_IN_SECTOR (FLASH_SECTOR_SIZE/_FLASH_PAGE_SIZE)
 
-#define EEPROM_Sector (0)
-#define EEPROM_offset (EEPROM_Sector*FLASH_SECTOR_SIZE)
+#define EEPROMVARS_Sector (0)
+#define EEPROMVARS_offset (EEPROMVARS_Sector*FLASH_SECTOR_SIZE)
 #define SETTINGS_Sector (1)
 #define SETTINGS_offset (SETTINGS_Sector*FLASH_SECTOR_SIZE)
-#define BUFFER_Sector (2)
+#define RECORS_Sector (2)
+#define RECORS_offset (RECORS_Sector*FLASH_SECTOR_SIZE)
+#define BUFFER_Sector (3)
 #define BUFFER_offset (BUFFER_Sector*FLASH_SECTOR_SIZE)
-#define Entry_DB_offset (3*FLASH_SECTOR_SIZE)
+#define Entry_DB_offset (4*FLASH_SECTOR_SIZE)
 
 #define EntryDdrToDdr(entryDdr) ((entryDdr) * sizeof(entry_t) + Entry_DB_offset)
 
 // TODO: comment everything
 // TODO: test me!
+
+void FLASH_EEPROM_Write(uint8_t * pBuffer, uint32_t Sector, uint32_t len)
+{
+    bool isBufEmpty;
+    // uint8_t buf[sizeof(settings_t)];
+    uint8_t *buf = malloc(len);
+    for (uint32_t i = 0; i+len <= FLASH_SECTOR_SIZE; i+=len){
+        FLASH_Read(buf, (Sector*FLASH_SECTOR_SIZE + i), len);
+        isBufEmpty = true;
+        for(size_t j = 0; j < len; i++){
+            if (buf[i] != 0xFF) {
+                isBufEmpty = false;
+                break;
+            }
+        }
+        if(isBufEmpty){
+            FLASH_Write(pBuffer, (Sector*FLASH_SECTOR_SIZE + i), len);
+            return;
+        }
+    }
+    W25qxx_EraseSector(Sector);
+    FLASH_Write(pBuffer, Sector*FLASH_SECTOR_SIZE, len);
+}
+
+void FLASH_EEPROM_Read(uint8_t * pBuffer, uint32_t Sector, uint32_t len)
+{
+    bool isEmpty = false;
+    for (uint32_t i = 0; i+len <= FLASH_SECTOR_SIZE; i+=len){
+        FLASH_Read(pBuffer, ((Sector*FLASH_SECTOR_SIZE) +  i), len);
+        for(size_t j = 0; j < len; i++){
+            isEmpty = false;
+            if (pBuffer[i] != 0xFF) {
+                isEmpty = false;
+                break;
+            }
+        }
+        if(isEmpty){
+            if(i==0)
+                return;
+            else{
+                i -= len;
+                FLASH_Read(pBuffer, ((Sector*FLASH_SECTOR_SIZE) +  i), len);
+                return;
+            }
+        }
+    }
+}
 
 void FLASH_Write(uint8_t *pBuffer, uint32_t ddr, uint32_t len)
 {
@@ -152,7 +202,7 @@ void FLASH_SettingsWrite(settings_t *settings)
 void FLASH_VarsRead(eepromVars_t *eepromVars)
 {
     for (uint32_t i = 0; i < FLASH_SECTOR_SIZE; i+=sizeof(eepromVars_t)){
-        FLASH_Read((uint8_t*)eepromVars, (EEPROM_offset + FLASH_SECTOR_SIZE - i), sizeof(eepromVars_t));
+        FLASH_Read((uint8_t*)eepromVars, (EEPROMVARS_offset + FLASH_SECTOR_SIZE - i), sizeof(eepromVars_t));
         for(size_t j = 0; j < sizeof(eepromVars_t); i++){
             if (((uint8_t*)(eepromVars))[i] != 0xFF) {
                 return;
@@ -166,7 +216,7 @@ void FLASH_VarsWrite(eepromVars_t *eepromVars)
     bool isBufEmpty;
     uint8_t buf[sizeof(eepromVars_t)];
     for (uint32_t i = 0; i < FLASH_SECTOR_SIZE; i+=sizeof(eepromVars_t)){
-        FLASH_Read(buf, (EEPROM_offset + i), sizeof(eepromVars_t));
+        FLASH_Read(buf, (EEPROMVARS_offset + i), sizeof(eepromVars_t));
         isBufEmpty = true;
         for(size_t j = 0; j < sizeof(eepromVars_t); i++){
             if (buf[i] != 0xFF) {
@@ -175,12 +225,12 @@ void FLASH_VarsWrite(eepromVars_t *eepromVars)
             }
         }
         if(isBufEmpty){
-            FLASH_Write((uint8_t*)eepromVars, (EEPROM_offset + i), sizeof(eepromVars_t));
+            FLASH_Write((uint8_t*)eepromVars, (EEPROMVARS_offset + i), sizeof(eepromVars_t));
             return;
         }
     }
-    W25qxx_EraseSector(EEPROM_Sector);
-    FLASH_Write((uint8_t*)eepromVars, EEPROM_offset, sizeof(eepromVars_t));
+    W25qxx_EraseSector(EEPROMVARS_Sector);
+    FLASH_Write((uint8_t*)eepromVars, EEPROMVARS_offset, sizeof(eepromVars_t));
 }
 
 void FLASH_Init()
