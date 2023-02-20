@@ -65,6 +65,7 @@ excludes:
   - "**/Example/**"
   - "**/example/**"
   - "**_template.*"
+  - "**/tests/**"
 
 
 # Include directories (directories containing .h or .hpp files)
@@ -86,6 +87,7 @@ includeDirectories:
   - Core/Lib/**
   - Drivers/w25qxx
   - Drivers/ssd1306-stm32HAL-DMA/lib
+  - Drivers/ulog/src
 
 
 # Files that should be included in the compilation.
@@ -143,6 +145,7 @@ sourceFiles:
   - Core/Lib/**
   - Drivers/w25qxx/**
   - Drivers/ssd1306-stm32HAL-DMA/lib/**
+  - Drivers/ulog/src/ulog.c
   - FATFS/Target/user_diskio_spi.c
 
 
