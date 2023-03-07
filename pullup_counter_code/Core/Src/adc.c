@@ -228,14 +228,7 @@ void ADC_DistanceCalibrate()
  */
 uint32_t ADC_MeasureBattery()
 {
-  // //TODO: calculate multiplier
-  // const float multiplier = 0.1F;
-  // HAL_GPIO_WritePin(BAT_SENSE_EN_GPIO_Port, BAT_SENSE_EN_Pin, 1);
-  // HAL_ADC_Start(&hadc);
-  // HAL_ADC_PollForConversion(&hadc, HAL_MAX_DELAY);
-  // uint16_t raw = HAL_ADC_GetValue(&hadc);
-  // return (float)(raw) * multiplier;
-  return ADC_buffer[1];
+  return ((ADC_buffer[1])*ADC_VCC)>>ADC_RES;
 }
 
 /**
@@ -245,14 +238,8 @@ uint32_t ADC_MeasureBattery()
  */
 uint32_t ADC_MeasureBackupBattery()
 {
-  // //TODO: calculate multiplier
-  // const float multiplier = 0.1F;
-  // HAL_GPIO_WritePin(BAT_SENSE_EN_GPIO_Port, BAT_SENSE_EN_Pin, 1);
-  // HAL_ADC_Start(&hadc);
-  // HAL_ADC_PollForConversion(&hadc, HAL_MAX_DELAY);
-  // uint16_t raw = HAL_ADC_GetValue(&hadc);
-  // return (float)(raw) * multiplier;
-  return ADC_buffer[2];
+  return ((ADC_buffer[2])*ADC_VCC)>>ADC_RES;
 }
+
 
 /* USER CODE END 1 */

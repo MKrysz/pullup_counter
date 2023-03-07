@@ -114,9 +114,15 @@ int main(void)
   }
   MX_TIM6_Init();
   /* USER CODE BEGIN 2 */
+  ADC_Init();
   FLASH_Init();
   DISPLAY_Init();
   HAL_TIM_Base_Start(&DISPLAY_HTIM);
+
+  if(GetUsbFlag()){
+    Display_SetMode(DispUSB);
+    CLI_StartUserInterface();
+  }
   /* USER CODE END 2 */
 
   /* Infinite loop */
@@ -135,10 +141,6 @@ int main(void)
     HAL_Delay(3000);
   }
 
-  if(GetUsbFlag()){
-    Display_SetMode(DispUSB);
-    // CLI_StartUserInterface();
-  }
 
   ADC_DistanceCalibrate();
 
@@ -178,9 +180,9 @@ int main(void)
     eepromVars.lastDdr++;
 
     FLASH_EntryWrite(&entry, eepromVars.lastDdr);
-    entry_t entryTemp;
-    FLASH_EntryRead(&entryTemp, eepromVars.lastDdr);
-    if(ENTRY_IsEqual(&entry, &entryTemp)){
+    entry_t entryRead;
+    FLASH_EntryRead(&entryRead, eepromVars.lastDdr);
+    if(!ENTRY_IsEqual(&entry, &entryRead)){
       Display_SetMode(DispError);
     }
   }
@@ -290,6 +292,7 @@ uint32_t measurePullupTime()
   uint32_t timeDelta = pullupEnd - pullupStart;
   return timeDelta;
 }
+
 /* USER CODE END 4 */
 
 /**

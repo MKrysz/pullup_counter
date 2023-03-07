@@ -91,6 +91,6 @@ void ENTRY_PrintRaw(entry_t *entry)
 void ENTRY_ToStrings(entry_t *entry, char* str)
 {
     sprintf(str, "%lu,%u,%u,%u,%u,%u,%u\n", 
-    entry->id, entry->hour, entry->minute, entry->day,
-    entry->month, entry->year, entry->count);
+        entry->id, entry->hour, entry->minute, entry->day,
+        entry->month, entry->year, entry->count);
 }

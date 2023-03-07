@@ -3,7 +3,7 @@
 
 // shutdown and sleep are mutually exlusive
 #define SHUTDOWN_ENABLE
-#define SLEEP_ENABLE
+// #define SLEEP_ENABLE
 
 // programming routine
 #define PROGRAM_ROUTINE

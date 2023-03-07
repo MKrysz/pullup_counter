@@ -20,9 +20,10 @@ typedef struct {
 } eepromVars_t;
 
 typedef struct {
-    bool SD_detected:1;
-    bool prox_en:1;
-    bool SD_autoUpdate:1;
+    bool SD_detected;
+    bool prox_en;
+    bool SD_autoUpdate;
+    bool Shell_present;
 } flags_t;
 
 typedef struct {

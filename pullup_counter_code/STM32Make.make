@@ -83,7 +83,6 @@ Drivers/STM32G0xx_HAL_Driver/Src/stm32g0xx_ll_dma.c \
 Drivers/STM32G0xx_HAL_Driver/Src/stm32g0xx_ll_rcc.c \
 Drivers/ssd1306-stm32HAL-DMA/lib/fonts.c \
 Drivers/ssd1306-stm32HAL-DMA/lib/ssd1306.c \
-Drivers/ulog/src/ulog.c \
 Drivers/w25qxx/w25qxx.c \
 FATFS/App/app_fatfs.c \
 FATFS/Target/user_diskio.c \

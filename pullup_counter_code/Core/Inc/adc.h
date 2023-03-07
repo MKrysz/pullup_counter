@@ -35,6 +35,11 @@ extern "C" {
 extern ADC_HandleTypeDef hadc1;
 
 /* USER CODE BEGIN Private defines */
+// Vcc in mV
+#define ADC_VCC 3300
+
+// 
+#define ADC_RES 12
 
 /* USER CODE END Private defines */
 
