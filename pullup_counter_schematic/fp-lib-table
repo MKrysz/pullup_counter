@@ -1,7 +1,6 @@
 (fp_lib_table
-  (lib (name "pullup_counter_schematic")(type "KiCad")(uri "${KIPRJMOD}/pullup_counter_schematic.pretty")(options "")(descr ""))
-  (lib (name "TCRT5000")(type "KiCad")(uri "${KIPRJMOD}/TCRT5000.pretty")(options "")(descr ""))
-  (lib (name "uSD_socket")(type "KiCad")(uri "${KIPRJMOD}/uSD_socket.pretty")(options "")(descr ""))
-  (lib (name "custom_buttons_switches")(type "KiCad")(uri "${KIPRJMOD}/custom_buttons_switches.pretty")(options "")(descr ""))
+  (version 7)
   (lib (name "Battery_Custom")(type "KiCad")(uri "${KIPRJMOD}/Battery_Custom.pretty")(options "")(descr ""))
+  (lib (name "custom_buttons_switches")(type "KiCad")(uri "${KIPRJMOD}/custom_buttons_switches.pretty")(options "")(descr ""))
+  (lib (name "uSD_socket")(type "KiCad")(uri "${KIPRJMOD}/uSD_socket.pretty")(options "")(descr ""))
 )
