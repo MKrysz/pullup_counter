@@ -68,12 +68,16 @@ void Error_Handler(void);
 #define BAT_RAW_GPIO_Port GPIOA
 #define UsrBtn3_Pin GPIO_PIN_1
 #define UsrBtn3_GPIO_Port GPIOD
+#define UsrBtn3_EXTI_IRQn EXTI0_1_IRQn
 #define UsrBtn2_Pin GPIO_PIN_2
 #define UsrBtn2_GPIO_Port GPIOD
+#define UsrBtn2_EXTI_IRQn EXTI2_3_IRQn
 #define UsrBtn1_Pin GPIO_PIN_3
 #define UsrBtn1_GPIO_Port GPIOD
+#define UsrBtn1_EXTI_IRQn EXTI2_3_IRQn
 #define UsrBtn0_Pin GPIO_PIN_4
 #define UsrBtn0_GPIO_Port GPIOD
+#define UsrBtn0_EXTI_IRQn EXTI4_15_IRQn
 #define SD_CS_Pin GPIO_PIN_5
 #define SD_CS_GPIO_Port GPIOD
 #define FLASH_CS_Pin GPIO_PIN_5

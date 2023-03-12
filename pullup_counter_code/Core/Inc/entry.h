@@ -4,6 +4,7 @@
 #include <stdint.h>
 #include <stdbool.h>
 
+
 /**
  * @brief data type representing one entry as is it saved in flash
  * 

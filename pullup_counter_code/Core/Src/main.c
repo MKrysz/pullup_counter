@@ -67,6 +67,7 @@ void SystemClock_Config(void);
 /* USER CODE BEGIN PFP */
 void programmingRoutine();
 uint32_t measurePullupTime();
+void SD_Update();
 /* USER CODE END PFP */
 
 /* Private user code ---------------------------------------------------------*/
@@ -156,6 +157,8 @@ int main(void)
   // count pull-ups loop
   uint32_t lastDetectedPullup = HAL_GetTick(); 
   while(HAL_GetTick()-lastDetectedPullup < settings.timeTillShutdown){
+    if(flags.SD_Update)
+      break;
     uint32_t timeDelta = measurePullupTime(); 
     if(settings.pullupTimeMin < timeDelta && timeDelta < settings.pullupTimeMax){
       lastDetectedPullup = HAL_GetTick();
@@ -189,6 +192,11 @@ int main(void)
 
   FLASH_VarsWrite(&eepromVars);
   FLASH_SettingsWrite(&settings);
+
+  if(flags.SD_Update){
+    Display_SetMode(DispSD);
+    SD_Update();
+  }
 
   #ifdef SLEEP_ENABLE
   HAL_SuspendTick();
@@ -293,6 +301,42 @@ uint32_t measurePullupTime()
   return timeDelta;
 }
 
+void SD_Update()
+{
+  //TODO: finish me
+  FATFS FatFs;  //Fatfs handle
+  FIL fil;  //File handle
+  FRESULT fres; //Result after operations  
+  uint32_t lastSavedId;
+  const char fileName[] = "pullup_data.csv";
+  char buffer[128];
+  unsigned int br; // number of bytes actualy read from f_read()
+
+  fres = f_mount(&FatFs, "", 1); //1=mount now
+
+  fres = f_open(&fil, fileName, FA_READ);
+  switch (fres)
+  {
+  case FR_OK:
+    while(1){ //seek last entry
+      f_gets(buffer, 128, &fil);
+      if(f_eof(&fil)){
+        break;
+      }
+      entry_t entry;
+      ENTRY_CreateFromString(&entry, buffer);
+      lastSavedId = entry.id;
+    }
+    break;
+  case FR_NO_FILE:
+    lastSavedId = 0;
+    break;
+  default:
+    break;
+  }
+
+  
+}
 /* USER CODE END 4 */
 
 /**
