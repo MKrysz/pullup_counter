@@ -2,6 +2,8 @@
 #include "entry.h"
 #include <stdio.h>
 
+const char ENTRY_RawFormat[] = "Id,Hour,Minute,Day,Month,Year,Count";
+
 /**
  * @brief Creates an entry from a given string
  * 
@@ -67,8 +69,10 @@ void ENTRY_Print(entry_t* entry)
 
 void ENTRY_PrintRawFormat()
 {
-    printf("Id,Hour,Minute,Day,Month,Year,Count\n");
+    printf(ENTRY_RawFormat);
+    printf("\n");
 }
+
 
 /**
  * @brief prints entry to the console in csv-friendly format

@@ -4,7 +4,6 @@
 #include <stdint.h>
 #include <stdbool.h>
 
-
 /**
  * @brief data type representing one entry as is it saved in flash
  * 
@@ -20,6 +19,8 @@ typedef struct _entry_struct
     unsigned int year:6;
 }entry_t;
 
+extern const char ENTRY_RawFormat[];
+
 bool ENTRY_IsEqual(entry_t* left, entry_t* right);
 
 void ENTRY_CreateFromString(entry_t* entry, char* str);
@@ -27,6 +28,7 @@ void ENTRY_CreateFromString(entry_t* entry, char* str);
 void ENTRY_ToStrings(entry_t *entry, char* str);
 void ENTRY_Print(entry_t* entry);
 void ENTRY_PrintRawFormat();
+const char* ENTRY_GetRawFormat();
 void ENTRY_PrintRaw(entry_t *entry);
 
 #endif // _ENTRY_h

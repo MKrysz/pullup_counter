@@ -330,10 +330,14 @@ void SD_Update()
     break;
   case FR_NO_FILE:
     lastSavedId = 0;
+    f_open(&fil, fileName, FA_CREATE_NEW | FA_WRITE);
     break;
   default:
     break;
   }
+
+  f_close(&fil);
+
 
   
 }
