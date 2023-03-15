@@ -79,8 +79,8 @@ void MX_GPIO_Init(void)
 
   /*Configure GPIO pins : PDPin PDPin PDPin PDPin */
   GPIO_InitStruct.Pin = UsrBtn3_Pin|UsrBtn2_Pin|UsrBtn1_Pin|UsrBtn0_Pin;
-  GPIO_InitStruct.Mode = GPIO_MODE_IT_RISING;
-  GPIO_InitStruct.Pull = GPIO_NOPULL;
+  GPIO_InitStruct.Mode = GPIO_MODE_IT_FALLING;
+  GPIO_InitStruct.Pull = GPIO_PULLUP;
   HAL_GPIO_Init(GPIOD, &GPIO_InitStruct);
 
   /*Configure GPIO pin : PtPin */
@@ -99,7 +99,7 @@ void MX_GPIO_Init(void)
 
   /*Configure GPIO pin : PtPin */
   GPIO_InitStruct.Pin = USB_FLAG_Pin;
-  GPIO_InitStruct.Mode = GPIO_MODE_INPUT;
+  GPIO_InitStruct.Mode = GPIO_MODE_IT_RISING;
   GPIO_InitStruct.Pull = GPIO_NOPULL;
   HAL_GPIO_Init(USB_FLAG_GPIO_Port, &GPIO_InitStruct);
 
@@ -121,8 +121,11 @@ void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin)
 {
   switch (GPIO_Pin)
   {
-  case UsrBtn0_Pin:
-    flags.SD_Update = true;
+  case USB_FLAG_Pin:
+    task = task_USB_handler;
+    break;
+  case UsrBtn0_Pin: //SD pin
+    task = task_SD_Update;
     break;
   case UsrBtn1_Pin:
   case UsrBtn2_Pin:
@@ -132,8 +135,4 @@ void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin)
   }
 }
 
-bool GetUsbFlag()
-{
-  return (bool) HAL_GPIO_ReadPin(USB_FLAG_GPIO_Port, USB_FLAG_Pin);
-}
 /* USER CODE END 2 */

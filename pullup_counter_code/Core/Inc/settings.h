@@ -28,10 +28,17 @@ typedef struct {
     uint8_t oneSeries;
 } records_t;
 
+typedef enum {
+    task_normalOperation,
+    task_SD_Update,
+    task_USB_handler,
+} task_t;
+
 
 extern settings_t settings;
 extern eepromVars_t eepromVars;
 extern volatile flags_t flags; 
+extern volatile task_t task; 
 extern records_t records;
 
 void Settings_Print(settings_t *settings);

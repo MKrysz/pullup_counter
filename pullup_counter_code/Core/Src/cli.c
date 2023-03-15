@@ -1,19 +1,19 @@
 
-// #include "cli.h"
+#include "cli.h"
 
-// #include <stdint.h>
-// #include <stdio.h>
-// #include <string.h>
-// #include <ctype.h>
+#include <stdint.h>
+#include <stdio.h>
+#include <string.h>
+#include <ctype.h>
 
-// #include "usart.h"
+#include "usart.h"
 
-// #include "flash.h"
-// #include "gpio.h"
-// #include "adc.h"
-// #include "entry.h"
-// #include "rtc.h"
-// #include "settings.h"
+#include "flash.h"
+#include "gpio.h"
+#include "adc.h"
+#include "entry.h"
+#include "rtc.h"
+#include "settings.h"
 
 // #define CLI_DEBUG 0
 
@@ -33,11 +33,11 @@
 
 // #define CMD_EQ(ARG_NR, X) (strcmp(args.str[(ARG_NR)], (X)) == 0)
 
-// const char welcomeMsg[] = 
-//     "/******************** Pull-up counter V02 *********************\\\n"
-//     "/********************      By MKrysz      *********************\\\n"
-//     "\n"
-//     "Type help for list of commands\n";
+const char welcomeMsg[] = 
+    "/******************** Pull-up counter V03 *********************\\\n"
+    "/********************      By MKrysz      *********************\\\n"
+    "\n"
+    "Type help for list of commands\n";
 
 // const char helpMsg[] = 
 //     "for specific help type help X, where X can be:\n"
@@ -141,12 +141,13 @@
 //  * @brief takes instructions from user and executes them as long as USB is connected
 //  * 
 //  */
-// void CLI_UserInterface()
-// {
+void CLI_StartUserInterface()
+{
 //   const size_t bufferSize = 32;
 //   char instructionBuffer[bufferSize];
 
-//   printf(welcomeMsg);
+  printf(welcomeMsg);
+}
 
 //   while(GetUsbFlag()){
     

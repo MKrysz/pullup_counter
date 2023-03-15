@@ -120,15 +120,6 @@ int main(void)
   DISPLAY_Init();
   HAL_TIM_Base_Start(&DISPLAY_HTIM);
 
-  if(GetUsbFlag()){
-    Display_SetMode(DispUSB);
-    CLI_StartUserInterface();
-  }
-  /* USER CODE END 2 */
-
-  /* Infinite loop */
-  /* USER CODE BEGIN WHILE */
-
   FLASH_SettingsRead(&settings);
   FLASH_VarsRead(&eepromVars);
   
@@ -142,8 +133,12 @@ int main(void)
     HAL_Delay(3000);
   }
 
-
   ADC_DistanceCalibrate();
+  /* USER CODE END 2 */
+
+  /* Infinite loop */
+  /* USER CODE BEGIN WHILE */
+
 
   uint8_t currentCount = 0;
   RTC_ReadTime();
@@ -164,7 +159,10 @@ int main(void)
       lastDetectedPullup = HAL_GetTick();
       currentCount++;
       eepromVars.pullup_counter++;
-    } 
+    }
+    if(task != task_normalOperation){
+      break;
+    }
   }
   
   if(currentCount != 0){
@@ -193,9 +191,13 @@ int main(void)
   FLASH_VarsWrite(&eepromVars);
   FLASH_SettingsWrite(&settings);
 
-  if(flags.SD_Update){
+  if(task == task_SD_Update){
     Display_SetMode(DispSD);
     SD_Update();
+  }
+  if(task == task_USB_handler){
+    Display_SetMode(DispUSB);
+    CLI_StartUserInterface();
   }
 
   #ifdef SLEEP_ENABLE
@@ -303,18 +305,18 @@ uint32_t measurePullupTime()
 
 void SD_Update()
 {
-  //TODO: finish me
   FATFS FatFs;  //Fatfs handle
   FIL fil;  //File handle
   FRESULT fres; //Result after operations  
-  uint32_t lastSavedId;
+  uint32_t startingID; // starting id
   const char fileName[] = "pullup_data.csv";
   char buffer[128];
   unsigned int br; // number of bytes actualy read from f_read()
+  entry_t entry;
 
   fres = f_mount(&FatFs, "", 1); //1=mount now
 
-  fres = f_open(&fil, fileName, FA_READ);
+  fres = f_open(&fil, fileName, FA_READ|FA_OPEN_EXISTING);
   switch (fres)
   {
   case FR_OK:
@@ -323,24 +325,38 @@ void SD_Update()
       if(f_eof(&fil)){
         break;
       }
-      entry_t entry;
-      ENTRY_CreateFromString(&entry, buffer);
-      lastSavedId = entry.id;
     }
+    ENTRY_CreateFromString(&entry, buffer);
+    startingID = entry.id;
+    f_close(&fil);
+    fres = f_open(&fil, fileName, FA_WRITE|FA_OPEN_APPEND);
     break;
+
   case FR_NO_FILE:
-    lastSavedId = 0;
-    f_open(&fil, fileName, FA_CREATE_NEW | FA_WRITE);
+    startingID = 0;
+    f_close(&fil);
+    fres = f_open(&fil, fileName, FA_WRITE|FA_CREATE_NEW);
+    f_puts(ENTRY_RawFormat, &fil);
+    f_putc('\n', &fil);
     break;
+
   default:
     break;
   }
 
+  uint32_t curID = startingID;
+  while(curID < eepromVars.lastDdr){
+    FLASH_EntryRead(&entry, curID);
+    ENTRY_ToStrings(&entry, buffer);
+    f_puts(buffer, &fil);
+    f_putc('\n', &fil);
+    SD_Done = (curID - startingID)*100/(eepromVars.lastDdr-startingID);
+    curID++;
+  }
+
   f_close(&fil);
-
-
-  
 }
+
 /* USER CODE END 4 */
 
 /**

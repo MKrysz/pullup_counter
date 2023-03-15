@@ -84,6 +84,7 @@ void Error_Handler(void);
 #define FLASH_CS_GPIO_Port GPIOB
 #define USB_FLAG_Pin GPIO_PIN_9
 #define USB_FLAG_GPIO_Port GPIOB
+#define USB_FLAG_EXTI_IRQn EXTI4_15_IRQn
 
 /* USER CODE BEGIN Private defines */
 

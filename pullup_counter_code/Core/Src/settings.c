@@ -5,6 +5,7 @@
 settings_t settings = {0};
 eepromVars_t eepromVars = {0};
 volatile flags_t flags = {0}; 
+volatile task_t task = task_normalOperation;
 
 /**
  * @brief prints settings via the console
