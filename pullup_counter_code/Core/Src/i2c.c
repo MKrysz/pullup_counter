@@ -21,7 +21,7 @@
 #include "i2c.h"
 
 /* USER CODE BEGIN 0 */
-
+#include "ssd1306.h"
 /* USER CODE END 0 */
 
 I2C_HandleTypeDef hi2c2;
@@ -154,5 +154,8 @@ void HAL_I2C_MspDeInit(I2C_HandleTypeDef* i2cHandle)
 }
 
 /* USER CODE BEGIN 1 */
-
+void HAL_I2C_MemTxCpltCallback(I2C_HandleTypeDef * hi2c)
+{
+  // ssd1306_DMA_callback();
+}
 /* USER CODE END 1 */

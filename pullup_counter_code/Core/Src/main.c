@@ -117,6 +117,7 @@ int main(void)
   /* USER CODE BEGIN 2 */
   ADC_Init();
   FLASH_Init();
+  HAL_GPIO_WritePin(OLED_RST_GPIO_Port, OLED_RST_Pin, 1);
   DISPLAY_Init();
   HAL_TIM_Base_Start(&DISPLAY_HTIM);
 
@@ -133,81 +134,81 @@ int main(void)
     HAL_Delay(3000);
   }
 
-  ADC_DistanceCalibrate();
+  // ADC_DistanceCalibrate();
   /* USER CODE END 2 */
 
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
 
 
-  uint8_t currentCount = 0;
-  RTC_ReadTime();
-  entry_t lastEntry;
-  FLASH_EntryRead(&lastEntry, eepromVars.lastDdr);
-  if(lastEntry.day != sDate.Date || lastEntry.month != sDate.Month || lastEntry.year != sDate.Year){
-      eepromVars.pullup_counter = 0;
-  }
-  Display_SetMode(DispCounting);
+  // uint8_t currentCount = 0;
+  // RTC_ReadTime();
+  // entry_t lastEntry;
+  // FLASH_EntryRead(&lastEntry, eepromVars.lastDdr);
+  // if(lastEntry.day != sDate.Date || lastEntry.month != sDate.Month || lastEntry.year != sDate.Year){
+  //     eepromVars.pullup_counter = 0;
+  // }
+  // Display_SetMode(DispCounting);
 
-  // count pull-ups loop
-  uint32_t lastDetectedPullup = HAL_GetTick(); 
-  while(HAL_GetTick()-lastDetectedPullup < settings.timeTillShutdown){
-    if(flags.SD_Update)
-      break;
-    uint32_t timeDelta = measurePullupTime(); 
-    if(settings.pullupTimeMin < timeDelta && timeDelta < settings.pullupTimeMax){
-      lastDetectedPullup = HAL_GetTick();
-      currentCount++;
-      eepromVars.pullup_counter++;
-    }
-    if(task != task_normalOperation){
-      break;
-    }
-  }
+  // // count pull-ups loop
+  // uint32_t lastDetectedPullup = HAL_GetTick(); 
+  // while(HAL_GetTick()-lastDetectedPullup < settings.timeTillShutdown){
+  //   if(flags.SD_Update)
+  //     break;
+  //   uint32_t timeDelta = measurePullupTime(); 
+  //   if(settings.pullupTimeMin < timeDelta && timeDelta < settings.pullupTimeMax){
+  //     lastDetectedPullup = HAL_GetTick();
+  //     currentCount++;
+  //     eepromVars.pullup_counter++;
+  //   }
+  //   if(task != task_normalOperation){
+  //     break;
+  //   }
+  // }
   
-  if(currentCount != 0){
+  // if(currentCount != 0){
 
-    uint32_t id = eepromVars.lastDdr;
-    entry_t entry;
-    entry.id = id;
-    entry.count = currentCount;
+  //   uint32_t id = eepromVars.lastDdr;
+  //   entry_t entry;
+  //   entry.id = id;
+  //   entry.count = currentCount;
 
-    entry.year = sDate.Year;
-    entry.month = sDate.Month;
-    entry.day = sDate.Date;
+  //   entry.year = sDate.Year;
+  //   entry.month = sDate.Month;
+  //   entry.day = sDate.Date;
     
-    entry.hour = sTime.Hours;
-    entry.minute = sTime.Minutes;
-    eepromVars.lastDdr++;
+  //   entry.hour = sTime.Hours;
+  //   entry.minute = sTime.Minutes;
+  //   eepromVars.lastDdr++;
 
-    FLASH_EntryWrite(&entry, eepromVars.lastDdr);
-    entry_t entryRead;
-    FLASH_EntryRead(&entryRead, eepromVars.lastDdr);
-    if(!ENTRY_IsEqual(&entry, &entryRead)){
-      Display_SetMode(DispError);
-    }
-  }
+  //   FLASH_EntryWrite(&entry, eepromVars.lastDdr);
+  //   entry_t entryRead;
+  //   FLASH_EntryRead(&entryRead, eepromVars.lastDdr);
+  //   if(!ENTRY_IsEqual(&entry, &entryRead)){
+  //     Display_SetMode(DispError);
+  //   }
+  // }
 
-  FLASH_VarsWrite(&eepromVars);
-  FLASH_SettingsWrite(&settings);
+  // FLASH_VarsWrite(&eepromVars);
+  // FLASH_SettingsWrite(&settings);
 
-  if(task == task_SD_Update){
-    Display_SetMode(DispSD);
-    SD_Update();
-  }
-  if(task == task_USB_handler){
-    Display_SetMode(DispUSB);
-    CLI_StartUserInterface();
-  }
+  // if(task == task_SD_Update){
+  //   Display_SetMode(DispSD);
+  //   SD_Update();
+  // }
+  // if(task == task_USB_handler){
+  //   Display_SetMode(DispUSB);
+  //   CLI_StartUserInterface();
+  // }
 
-  #ifdef SLEEP_ENABLE
-  HAL_SuspendTick();
-  HAL_PWR_EnterSTOPMode(PWR_LOWPOWERREGULATOR_ON, PWR_STOPENTRY_WFI);
-  #endif
+  // #ifdef SLEEP_ENABLE
+  // HAL_SuspendTick();
+  // HAL_PWR_EnterSTOPMode(PWR_LOWPOWERREGULATOR_ON, PWR_STOPENTRY_WFI);
+  // #endif
 
-  #ifdef SHUTDOWN_ENABLE
-  HAL_GPIO_WritePin(PWR_EN_GPIO_Port, PWR_EN_Pin, 0);
-  #endif
+  // #ifdef SHUTDOWN_ENABLE
+  // HAL_GPIO_WritePin(PWR_EN_GPIO_Port, PWR_EN_Pin, 0);
+  // #endif
 
   while (1)
   {
@@ -231,17 +232,11 @@ void SystemClock_Config(void)
   */
   HAL_PWREx_ControlVoltageScaling(PWR_REGULATOR_VOLTAGE_SCALE1);
 
-  /** Configure LSE Drive Capability
-  */
-  HAL_PWR_EnableBkUpAccess();
-  __HAL_RCC_LSEDRIVE_CONFIG(RCC_LSEDRIVE_LOW);
-
   /** Initializes the RCC Oscillators according to the specified parameters
   * in the RCC_OscInitTypeDef structure.
   */
-  RCC_OscInitStruct.OscillatorType = RCC_OSCILLATORTYPE_HSE|RCC_OSCILLATORTYPE_LSE;
+  RCC_OscInitStruct.OscillatorType = RCC_OSCILLATORTYPE_HSE;
   RCC_OscInitStruct.HSEState = RCC_HSE_ON;
-  RCC_OscInitStruct.LSEState = RCC_LSE_ON;
   RCC_OscInitStruct.PLL.PLLState = RCC_PLL_ON;
   RCC_OscInitStruct.PLL.PLLSource = RCC_PLLSOURCE_HSE;
   RCC_OscInitStruct.PLL.PLLM = RCC_PLLM_DIV1;
