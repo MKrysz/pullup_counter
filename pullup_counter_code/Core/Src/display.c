@@ -7,6 +7,7 @@
 #include "images.h"
 #include "settings.h"
 #include "rtc.h"
+#include "tim.h"
 #include "adc.h"
 
 #define ABS(X) ((X)>=0?(X):(-X))
@@ -34,40 +35,43 @@ void _Logout_Callback();
 
 int DISPLAY_Init()
 {
+    HAL_TIM_Base_Start_IT(&DISPLAY_HTIM);
     return ssd1306_Init();
 }
 
 void Display_SetMode(display_mode_t display_mode)
 { // TODO: finish me
-    frame = 0;
     _display_mode = display_mode;
     ssd1306_Fill(Black);
     switch (display_mode)
     {
-    case Disp_Off:
-        break;
-    case DispCounting:
-        _Counting_Draw();
-        break;
-    case DispLowVoltage:
-        _LowVoltage_Draw();
-        break;
-    case DispUSB:
-        _USB_Draw();
-        break;
-    case DispSD:
-        _SD_Draw();
-        break;
-    case DispLogout:
-        _Logout_Draw();
-        break;
-    default:
-        break;
+        case Disp_Off:
+            break;
+        case DispCounting:
+            _Counting_Draw();
+            break;
+        case DispLowVoltage:
+            _LowVoltage_Draw();
+            break;
+        case DispUSB:
+            _USB_Draw();
+            break;
+        case DispSD:
+            _SD_Draw();
+            break;
+        case DispLogout:
+            _Logout_Draw();
+            break;
+        default:
+            break;
     }
+    frame = 0;
 }
 
 void DISPLAY_TIM_Callback()
 { //TODO: finish me
+    if(!ssd1306_IsUpdateFinished())
+        return;
     switch (_display_mode)
     {
     case DispLowVoltage:
@@ -82,12 +86,15 @@ void DISPLAY_TIM_Callback()
     case DispSD:
         _SD_Callback();
         break;
+    case DispError:
+        break;
     case DispLogout:
         _Logout_Callback();
         break;
     default:
         break;
     }
+    ssd1306_UpdateScreen();
     frame++;
 }
 
@@ -110,7 +117,6 @@ void _LowVoltage_Draw()
 
 void _LowVoltage_Callback()
 { //TODO: finish me
-    
 }
 
 void _Counting_Draw()
@@ -156,7 +162,6 @@ void _Counting_Callback()
 
     Image_DrawNeedle(34, 6, eepromVars.pullup_counter*67/goal);
 
-    ssd1306_UpdateScreen();
 }
 
 /**
@@ -238,7 +243,7 @@ void _USB_Draw()
 
 void _USB_Callback()
 {
-    ssd1306_UpdateScreen();
+    // ssd1306_UpdateScreen();
 }
 
 /**
@@ -326,7 +331,7 @@ void _SD_Draw()
 void _SD_Callback()
 {
     _DrawFilledRectangle(13, 41, 13+SD_Done, 59);
-    ssd1306_UpdateScreen();
+    // ssd1306_UpdateScreen();
 }
 
 void _Logout_Draw()
@@ -343,7 +348,7 @@ void _Logout_Draw()
 
 void _Logout_Callback()
 {
-    ssd1306_UpdateScreen();
+    // ssd1306_UpdateScreen();
 }
 
 void _DrawFilledRectangle(uint8_t xStart, uint8_t yStart, uint8_t xEnd, uint8_t yEnd)

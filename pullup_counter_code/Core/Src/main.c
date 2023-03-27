@@ -41,6 +41,7 @@
 #include "config.h"
 #include "flash.h"
 #include "w25qxx.h"
+#include "ssd1306.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -116,23 +117,30 @@ int main(void)
   MX_TIM6_Init();
   /* USER CODE BEGIN 2 */
   ADC_Init();
-  FLASH_Init();
+  HAL_Delay(100);
   HAL_GPIO_WritePin(OLED_RST_GPIO_Port, OLED_RST_Pin, 1);
+  HAL_Delay(100);
+  // FLASH_Init();
   DISPLAY_Init();
-  HAL_TIM_Base_Start(&DISPLAY_HTIM);
 
-  FLASH_SettingsRead(&settings);
-  FLASH_VarsRead(&eepromVars);
-  
-  #ifdef PROGRAM_ROUTINE
-  programmingRoutine();
-  #endif
-
-  // check battery voltage and warn of low voltage
-  if(ADC_MeasureBattery() < settings.batteryVoltageThreshold){
-    Display_SetMode(DispLowVoltage);
-    HAL_Delay(3000);
+  for (size_t i = 1; i < 7; i++)
+  {
+    Display_SetMode(i);
+    HAL_Delay(5000);
   }
+  
+  // FLASH_SettingsRead(&settings);
+  // FLASH_VarsRead(&eepromVars);
+  
+  // #ifdef PROGRAM_ROUTINE
+  // programmingRoutine();
+  // #endif
+
+  // // check battery voltage and warn of low voltage
+  // if(ADC_MeasureBattery() < settings.batteryVoltageThreshold){
+  //   Display_SetMode(DispLowVoltage);
+  //   HAL_Delay(3000);
+  // }
 
   // ADC_DistanceCalibrate();
   /* USER CODE END 2 */

@@ -103,8 +103,8 @@ void HAL_TIM_Base_MspDeInit(TIM_HandleTypeDef* tim_baseHandle)
 
 void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
 {
-  // if(htim == &DISPLAY_HTIM)
-  //   DISPLAY_TIM_Callback();
+  if(htim == &DISPLAY_HTIM)
+    DISPLAY_TIM_Callback();
 }
 
 /* USER CODE END 1 */
