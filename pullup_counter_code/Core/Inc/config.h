@@ -9,9 +9,9 @@
 #define PROGRAM_ROUTINE
 // programming routine - options 
 #define SET_RTC
-#define ERASE_FLASH
-#define RESET_SETTINGS
-#define RESET_EEPROM
+// #define ERASE_FLASH
+// #define RESET_SETTINGS
+// #define RESET_EEPROM
 
 
 

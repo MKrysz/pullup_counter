@@ -21,6 +21,16 @@ void Image_Draw(uint8_t x, uint8_t y, image_t image)
     }
 }
 
+void Image_Clear(uint8_t x, uint8_t y, image_t image)
+{
+
+    for(size_t i = 0; i<image.size; i++){
+        uint8_t tempX, tempY;
+        tempX = image.data[i*2];
+        tempY = image.data[i*2+1];
+        ssd1306_DrawPixel(x+tempX, y+tempY, Black);
+    }
+}
 
 static const uint8_t img_meter_data[] = {
     0,26,  0,25,  0,24,  0,23,  0,22,  0,21,  1,20,  1,19,  1,18,  1,17,  2,16,  2,15,  

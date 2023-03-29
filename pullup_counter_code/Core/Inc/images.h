@@ -20,6 +20,7 @@ typedef struct {
 } animation_t;
 
 void Image_Draw(uint8_t x, uint8_t y, image_t image);
+void Image_Clear(uint8_t x, uint8_t y, image_t image);
 void Image_DrawNeedle(uint8_t x, uint8_t y, size_t idx);
 
 extern image_t img_meter;

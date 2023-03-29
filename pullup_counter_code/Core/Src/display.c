@@ -126,7 +126,6 @@ void _Counting_Draw()
     Image_Draw(84, 52, img_smallBattery);
     Image_Draw(90, 14, img_sd);
     Image_Draw(103, 15, img_autoUpdate); 
-    Image_Draw(90, 28, img_proxOn);
     ssd1306_SetCursor(0, 2);
     ssd1306_WriteString("23", Font_11x18, White);
     ssd1306_SetCursor(0, 22);
@@ -156,11 +155,16 @@ void _Counting_Callback()
 
     // pullup counter
     ssd1306_SetCursor(29+6, 36);
-    // sprintf(strBuf, "%03lu", pullupCnt%1000);
-    sprintf(strBuf, "%03lu", eepromVars.pullup_counter);
+    sprintf(strBuf, "%04li", ADC_MeasureDistance());
+    // sprintf(strBuf, "%03lu", eepromVars.pullup_counter);
     ssd1306_WriteString(strBuf, Font_16x26, White);
 
     Image_DrawNeedle(34, 6, eepromVars.pullup_counter*67/goal);
+
+    if(flags.IsProxOn)
+        Image_Draw(90, 28, img_proxOn);
+    else
+        Image_Clear(90, 28, img_proxOn);
 
 }
 

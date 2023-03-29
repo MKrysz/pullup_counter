@@ -51,6 +51,8 @@ uint32_t ADC_MeasureBattery();
 uint32_t ADC_MeasureBackupBattery();
 int32_t ADC_MeasureDistance();
 void ADC_DistanceCalibrate();
+void ADC_PROX_ON();
+void ADC_PROX_OFF();
 
 /* USER CODE END Prototypes */
 

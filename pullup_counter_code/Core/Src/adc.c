@@ -21,7 +21,7 @@
 #include "adc.h"
 
 /* USER CODE BEGIN 0 */
-
+#include "settings.h"
 /* USER CODE END 0 */
 
 ADC_HandleTypeDef hadc1;
@@ -48,16 +48,16 @@ void MX_ADC1_Init(void)
   hadc1.Init.Resolution = ADC_RESOLUTION_12B;
   hadc1.Init.DataAlign = ADC_DATAALIGN_RIGHT;
   hadc1.Init.ScanConvMode = ADC_SCAN_ENABLE;
-  hadc1.Init.EOCSelection = ADC_EOC_SINGLE_CONV;
+  hadc1.Init.EOCSelection = ADC_EOC_SEQ_CONV;
   hadc1.Init.LowPowerAutoWait = DISABLE;
   hadc1.Init.LowPowerAutoPowerOff = DISABLE;
   hadc1.Init.ContinuousConvMode = ENABLE;
   hadc1.Init.NbrOfConversion = 3;
   hadc1.Init.ExternalTrigConv = ADC_SOFTWARE_START;
   hadc1.Init.ExternalTrigConvEdge = ADC_EXTERNALTRIGCONVEDGE_NONE;
-  hadc1.Init.DMAContinuousRequests = DISABLE;
+  hadc1.Init.DMAContinuousRequests = ENABLE;
   hadc1.Init.Overrun = ADC_OVR_DATA_PRESERVED;
-  hadc1.Init.SamplingTimeCommon1 = ADC_SAMPLETIME_1CYCLE_5;
+  hadc1.Init.SamplingTimeCommon1 = ADC_SAMPLETIME_160CYCLES_5;
   hadc1.Init.SamplingTimeCommon2 = ADC_SAMPLETIME_1CYCLE_5;
   hadc1.Init.OversamplingMode = DISABLE;
   hadc1.Init.TriggerFrequencyMode = ADC_TRIGGER_FREQ_HIGH;
@@ -173,6 +173,12 @@ void HAL_ADC_MspDeInit(ADC_HandleTypeDef* adcHandle)
 /* USER CODE BEGIN 1 */
 
 uint32_t ambientDistance = 0;
+
+/**
+ * [0] - Poximity
+ * [1] - Battery
+ * [2] - Backup battery
+ */
 uint32_t ADC_buffer[3];
 
 void ADC_Init()
@@ -180,21 +186,6 @@ void ADC_Init()
   HAL_ADC_Start_DMA(&hadc1, ADC_buffer, 3);
 }
 
-/**
- * @brief returns raw abolute reading from proximity sensor
- * 
- * @return uint32_t 
- */
-uint32_t _ADC_DistanceRaw()
-{
-  HAL_GPIO_WritePin(PROX_EN_GPIO_Port, PROX_EN_Pin, 1);
-  HAL_Delay(10);
-  HAL_ADC_Start(&hadc1);
-  while(HAL_ADC_PollForConversion(&hadc1, HAL_MAX_DELAY) != HAL_OK);
-  uint32_t raw = HAL_ADC_GetValue(&hadc1);
-  HAL_GPIO_WritePin(PROX_EN_GPIO_Port, PROX_EN_Pin, 0);
-  return raw;
-}
 
 /**
  * @brief returns relative reading from proximity sensor
@@ -215,9 +206,13 @@ void ADC_DistanceCalibrate()
 {
   const size_t bufferSize = 64;
   uint32_t result = 0;
+  HAL_GPIO_WritePin(PROX_EN_GPIO_Port, PROX_EN_Pin, 1);
+  HAL_Delay(100);
   for (size_t i = 0; i < bufferSize; i++){
-    result += _ADC_DistanceRaw();
+    HAL_Delay(2);
+    result += ADC_buffer[0];
   }
+  HAL_GPIO_WritePin(PROX_EN_GPIO_Port, PROX_EN_Pin, 0);
   ambientDistance = result>>6;
 }
 
@@ -241,5 +236,16 @@ uint32_t ADC_MeasureBackupBattery()
   return ((ADC_buffer[2])*ADC_VCC)>>ADC_RES;
 }
 
+void ADC_PROX_ON()
+{
+  flags.IsProxOn = true;
+  HAL_GPIO_WritePin(PROX_EN_GPIO_Port, PROX_EN_Pin, 0);
+}
+
+void ADC_PROX_OFF()
+{
+  flags.IsProxOn = false;
+  HAL_GPIO_WritePin(PROX_EN_GPIO_Port, PROX_EN_Pin, 0);
+}
 
 /* USER CODE END 1 */

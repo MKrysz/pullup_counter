@@ -55,7 +55,6 @@
 
 /* Private macro -------------------------------------------------------------*/
 /* USER CODE BEGIN PM */
-
 /* USER CODE END PM */
 
 /* Private variables ---------------------------------------------------------*/
@@ -116,107 +115,120 @@ int main(void)
   }
   MX_TIM6_Init();
   /* USER CODE BEGIN 2 */
+  printf("Board Init\n\r");
+  uint32_t timStart;
+
+  timStart = HAL_GetTick();
   ADC_Init();
+  printf("ADC_Init - %lums\n\r", HAL_GetTick()-timStart);
+
   HAL_Delay(100);
   HAL_GPIO_WritePin(OLED_RST_GPIO_Port, OLED_RST_Pin, 1);
   HAL_Delay(100);
-  // FLASH_Init();
+
+  timStart = HAL_GetTick();
+  FLASH_Init();
+  printf("Flash_init - %lums\n\r", HAL_GetTick()-timStart);
+
+  timStart = HAL_GetTick();
   DISPLAY_Init();
+  printf("Display_init - %lums\n\r", HAL_GetTick()-timStart);
 
-  for (size_t i = 1; i < 7; i++)
-  {
-    Display_SetMode(i);
-    HAL_Delay(5000);
+  
+  timStart = HAL_GetTick();
+  FLASH_SettingsRead(&settings);
+  FLASH_VarsRead(&eepromVars);
+  printf("eeprom read - %lums\n\r", HAL_GetTick()-timStart);
+  
+  #ifdef PROGRAM_ROUTINE
+  programmingRoutine();
+  #endif
+
+  // check battery voltage and warn of low voltage
+  if(ADC_MeasureBattery() < settings.batteryVoltageThreshold){
+    Display_SetMode(DispLowVoltage);
+    // HAL_Delay(3000);
   }
-  
-  // FLASH_SettingsRead(&settings);
-  // FLASH_VarsRead(&eepromVars);
-  
-  // #ifdef PROGRAM_ROUTINE
-  // programmingRoutine();
-  // #endif
 
-  // // check battery voltage and warn of low voltage
-  // if(ADC_MeasureBattery() < settings.batteryVoltageThreshold){
-  //   Display_SetMode(DispLowVoltage);
-  //   HAL_Delay(3000);
-  // }
-
-  // ADC_DistanceCalibrate();
+  ADC_PROX_ON();
+  HAL_Delay(20);
+  ADC_DistanceCalibrate();
+  printf("Booting time = %lums\n\r", HAL_GetTick());
   /* USER CODE END 2 */
 
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
 
 
-  // uint8_t currentCount = 0;
-  // RTC_ReadTime();
-  // entry_t lastEntry;
-  // FLASH_EntryRead(&lastEntry, eepromVars.lastDdr);
-  // if(lastEntry.day != sDate.Date || lastEntry.month != sDate.Month || lastEntry.year != sDate.Year){
-  //     eepromVars.pullup_counter = 0;
-  // }
-  // Display_SetMode(DispCounting);
-
-  // // count pull-ups loop
-  // uint32_t lastDetectedPullup = HAL_GetTick(); 
+  uint8_t currentCount = 0;
+  RTC_ReadTime();
+  entry_t lastEntry;
+  FLASH_EntryRead(&lastEntry, eepromVars.lastDdr);
+  if(lastEntry.day != sDate.Date || lastEntry.month != sDate.Month || lastEntry.year != sDate.Year){
+      eepromVars.pullup_counter = 0;
+  }
+  Display_SetMode(DispCounting);
+  // count pull-ups loop
+  uint32_t lastDetectedPullup = HAL_GetTick(); 
   // while(HAL_GetTick()-lastDetectedPullup < settings.timeTillShutdown){
-  //   if(flags.SD_Update)
-  //     break;
-  //   uint32_t timeDelta = measurePullupTime(); 
-  //   if(settings.pullupTimeMin < timeDelta && timeDelta < settings.pullupTimeMax){
-  //     lastDetectedPullup = HAL_GetTick();
-  //     currentCount++;
-  //     eepromVars.pullup_counter++;
-  //   }
-  //   if(task != task_normalOperation){
-  //     break;
-  //   }
-  // }
+  while(1) {
+    if(flags.SD_Update)
+      break;
+    uint32_t timeDelta = measurePullupTime(); 
+    if(settings.pullupTimeMin < timeDelta && timeDelta < settings.pullupTimeMax){
+      lastDetectedPullup = HAL_GetTick();
+      currentCount++;
+      eepromVars.pullup_counter++;
+    }
+    if(task != task_normalOperation){
+      break;
+    }
+  }
+  ADC_PROX_OFF();
   
-  // if(currentCount != 0){
+  if(currentCount != 0){
 
-  //   uint32_t id = eepromVars.lastDdr;
-  //   entry_t entry;
-  //   entry.id = id;
-  //   entry.count = currentCount;
+    uint32_t id = eepromVars.lastDdr;
+    entry_t entry;
+    entry.id = id;
+    entry.count = currentCount;
 
-  //   entry.year = sDate.Year;
-  //   entry.month = sDate.Month;
-  //   entry.day = sDate.Date;
+    entry.year = sDate.Year;
+    entry.month = sDate.Month;
+    entry.day = sDate.Date;
     
-  //   entry.hour = sTime.Hours;
-  //   entry.minute = sTime.Minutes;
-  //   eepromVars.lastDdr++;
+    entry.hour = sTime.Hours;
+    entry.minute = sTime.Minutes;
+    eepromVars.lastDdr++;
 
-  //   FLASH_EntryWrite(&entry, eepromVars.lastDdr);
-  //   entry_t entryRead;
-  //   FLASH_EntryRead(&entryRead, eepromVars.lastDdr);
-  //   if(!ENTRY_IsEqual(&entry, &entryRead)){
-  //     Display_SetMode(DispError);
-  //   }
-  // }
+    FLASH_EntryWrite(&entry, eepromVars.lastDdr);
+    entry_t entryRead;
+    FLASH_EntryRead(&entryRead, eepromVars.lastDdr);
+    if(!ENTRY_IsEqual(&entry, &entryRead)){
+      Display_SetMode(DispError);
+    }
+  }
+  
+  FLASH_VarsWrite(&eepromVars);
+  FLASH_SettingsWrite(&settings);
 
-  // FLASH_VarsWrite(&eepromVars);
-  // FLASH_SettingsWrite(&settings);
+  if(task == task_SD_Update){
+    Display_SetMode(DispSD);
+    SD_Update();
+  }
+  if(task == task_USB_handler){
+    Display_SetMode(DispUSB);
+    CLI_StartUserInterface();
+  }
 
-  // if(task == task_SD_Update){
-  //   Display_SetMode(DispSD);
-  //   SD_Update();
-  // }
-  // if(task == task_USB_handler){
-  //   Display_SetMode(DispUSB);
-  //   CLI_StartUserInterface();
-  // }
+  #ifdef SLEEP_ENABLE
+  HAL_SuspendTick();
+  HAL_PWR_EnterSTOPMode(PWR_LOWPOWERREGULATOR_ON, PWR_STOPENTRY_WFI);
+  #endif
 
-  // #ifdef SLEEP_ENABLE
-  // HAL_SuspendTick();
-  // HAL_PWR_EnterSTOPMode(PWR_LOWPOWERREGULATOR_ON, PWR_STOPENTRY_WFI);
-  // #endif
-
-  // #ifdef SHUTDOWN_ENABLE
-  // HAL_GPIO_WritePin(PWR_EN_GPIO_Port, PWR_EN_Pin, 0);
-  // #endif
+  #ifdef SHUTDOWN_ENABLE
+  HAL_GPIO_WritePin(PWR_EN_GPIO_Port, PWR_EN_Pin, 0);
+  #endif
 
   while (1)
   {

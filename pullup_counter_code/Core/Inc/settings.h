@@ -21,6 +21,7 @@ typedef struct {
 
 typedef struct {
     bool SD_Update;
+    bool IsProxOn;
 } flags_t;
 
 typedef struct {
