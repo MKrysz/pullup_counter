@@ -196,6 +196,7 @@ int32_t ADC_MeasureDistance()
 {
   uint32_t raw = ADC_buffer[0];
   return (int32_t) (raw - ambientDistance);
+  // return raw;
 }
 
 /**
@@ -239,7 +240,7 @@ uint32_t ADC_MeasureBackupBattery()
 void ADC_PROX_ON()
 {
   flags.IsProxOn = true;
-  HAL_GPIO_WritePin(PROX_EN_GPIO_Port, PROX_EN_Pin, 0);
+  HAL_GPIO_WritePin(PROX_EN_GPIO_Port, PROX_EN_Pin, 1);
 }
 
 void ADC_PROX_OFF()

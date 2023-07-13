@@ -122,9 +122,6 @@ int main(void)
   ADC_Init();
   printf("ADC_Init - %lums\n\r", HAL_GetTick()-timStart);
 
-  HAL_Delay(100);
-  HAL_GPIO_WritePin(OLED_RST_GPIO_Port, OLED_RST_Pin, 1);
-  HAL_Delay(100);
 
   timStart = HAL_GetTick();
   FLASH_Init();
@@ -150,10 +147,16 @@ int main(void)
     // HAL_Delay(3000);
   }
 
-  ADC_PROX_ON();
   HAL_Delay(20);
   ADC_DistanceCalibrate();
   printf("Booting time = %lums\n\r", HAL_GetTick());
+  
+  ADC_PROX_ON();
+  printf("Proximity sensor on\n");
+  while(1){
+    printf("%li\n", ADC_MeasureDistance());
+    HAL_Delay(100);
+  }
   /* USER CODE END 2 */
 
   /* Infinite loop */
