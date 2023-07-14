@@ -16,6 +16,8 @@
 *_schematic/*-save.pro
 *_schematic/*-save.kicad_pcb
 *_schematic/fp-info-cache
+*_schematic/*.lck
+
 
 # Netlist files (exported from Eeschema)
 *_schematic/*.net

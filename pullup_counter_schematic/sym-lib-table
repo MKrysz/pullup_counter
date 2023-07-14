@@ -1,0 +1,5 @@
+(sym_lib_table
+  (version 7)
+  (lib (name "TouchPad")(type "Legacy")(uri "${KIPRJMOD}/Libraries/TouchPad.lib")(options "")(descr ""))
+  (lib (name "TTP")(type "Legacy")(uri "${KIPRJMOD}/Libraries/TTP.lib")(options "")(descr ""))
+)
